@@ -1,0 +1,18 @@
+{
+  "name": "illumio-reconciler",
+  "version": "1.0.0",
+  "description": "Chrome extension for reconciling CMDB records with Illumio workloads",
+  "scripts": {
+    "build:css": "postcss src/sidepanel/styles.css -o dist/sidepanel/styles.css",
+    "build": "npm run build:css && node scripts/build.js",
+    "dev": "chokidar 'src/**/*' 'public/**/*' -c 'npm run build' --initial"
+  },
+  "devDependencies": {
+    "@alpinejs/csp": "^3.15.5",
+    "autoprefixer": "^10.4.17",
+    "chokidar-cli": "^3.0.0",
+    "postcss": "^8.4.33",
+    "postcss-cli": "^11.0.0",
+    "tailwindcss": "^3.4.0"
+  }
+}
