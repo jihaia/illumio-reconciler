@@ -473,7 +473,7 @@ class ReconcilerApp {
       <header class="sticky top-0 bg-white border-b border-border z-10">
         <div class="px-4 py-3">
           <div class="flex items-center justify-between mb-3">
-            <h1 class="text-lg font-semibold text-text">Illumio Reconciler</h1>
+            <h1 class="text-lg font-semibold text-text">ServiceNow <span class="ml-1 inline-flex items-center px-1.5 h-4 rounded-full text-[10px] font-medium bg-green-100 text-green-800">Connected</span></h1>
             <button id="toggleViewBtn" class="text-sm text-primary hover:text-primary-600 font-medium">
               ${this.view === 'workload' ? 'View All' : '← Back'}
             </button>

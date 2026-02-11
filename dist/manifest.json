@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Illumio CMDB Reconciler",
+  "name": "SubjectData | Aperture",
   "version": "1.0.0",
   "description": "Reconcile CMDB records with Illumio workloads for metadata enrichment",
   "permissions": [
