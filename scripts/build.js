@@ -10,6 +10,9 @@ const PUBLIC = path.join(ROOT, 'public');
 const dirs = [
   DIST,
   path.join(DIST, 'sidepanel'),
+  path.join(DIST, 'graph'),
+  path.join(DIST, 'popup'),
+  path.join(DIST, 'lib'),
   path.join(DIST, 'icons'),
 ];
 
@@ -47,6 +50,35 @@ sidepanelFiles.forEach(file => {
     fs.copyFileSync(srcPath, path.join(DIST, 'sidepanel', file));
   }
 });
+
+// Copy graph files
+const graphFiles = ['index.html', 'graph.js'];
+graphFiles.forEach(file => {
+  const srcPath = path.join(SRC, 'graph', file);
+  if (fs.existsSync(srcPath)) {
+    fs.copyFileSync(srcPath, path.join(DIST, 'graph', file));
+  }
+});
+
+// Copy popup files
+const popupFiles = ['popup.html', 'popup.js'];
+popupFiles.forEach(file => {
+  const srcPath = path.join(SRC, 'popup', file);
+  if (fs.existsSync(srcPath)) {
+    fs.copyFileSync(srcPath, path.join(DIST, 'popup', file));
+  }
+});
+
+// Copy lib files (vis-network)
+const libDir = path.join(PUBLIC, 'lib');
+if (fs.existsSync(libDir)) {
+  fs.readdirSync(libDir).forEach(file => {
+    fs.copyFileSync(
+      path.join(libDir, file),
+      path.join(DIST, 'lib', file)
+    );
+  });
+}
 
 // Copy public assets
 if (fs.existsSync(PUBLIC)) {

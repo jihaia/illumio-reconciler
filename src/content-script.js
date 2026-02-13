@@ -507,6 +507,13 @@
         currentWorkload = data;
         sendWorkloadData(data);
         log('SUCCESS: Detected workload', data.hostname);
+        // Inject visualize button after a short delay for DOM to settle
+        setTimeout(() => injectVisualizeButton(), 300);
+      } else {
+        // Same workload, but button may have been removed by SPA re-render
+        if (!document.getElementById('illumio-reconciler-visualize-btn')) {
+          setTimeout(() => injectVisualizeButton(), 300);
+        }
       }
       extractionAttempts = 0;
       return;
@@ -540,6 +547,7 @@
       // We're on a workload detail page - definitely try to extract
       const uuid = extractWorkloadUuidFromUrl();
       log('On workload DETAIL page, UUID:', uuid);
+      removeVisualizeButton(); // Remove stale button from previous workload
       extractionAttempts = 0;
       currentWorkload = null; // Reset to force new extraction
       // Wait for page to render
@@ -549,10 +557,12 @@
     } else if (isOnWorkloadPage) {
       // On workload list page (not detail) - clear current workload and notify side panel
       log('On workload list page (not detail)');
+      removeVisualizeButton();
       currentWorkload = null;
       sendNotOnWorkloadPage();
     } else if (wasOnWorkloadPage) {
       log('Navigated away from workload page');
+      removeVisualizeButton();
       currentWorkload = null;
       sendNotOnWorkloadPage();
     }
@@ -788,6 +798,144 @@
       childList: true,
       subtree: true,
     });
+  }
+
+  // --- Open Graph Page ---
+
+  function openGraphPage(hostname) {
+    if (!isExtensionValid()) return;
+    try {
+      chrome.runtime.sendMessage({
+        action: 'openGraphPage',
+        payload: { focus: hostname },
+      }).catch(err => {
+        log('Could not open graph page:', err.message);
+      });
+    } catch (err) {
+      log('Extension context error opening graph page:', err.message);
+    }
+    log('Requested graph page for:', hostname);
+  }
+
+  // --- Visualize Button Injection ---
+
+  function injectVisualizeButton() {
+    if (!currentWorkload?.hostname) return;
+
+    // Don't duplicate
+    if (document.getElementById('illumio-reconciler-visualize-btn')) return;
+
+    const hostname = currentWorkload.hostname;
+
+    // Find the header element to inject next to.
+    // Priority order: Illumio-specific data-tid selectors, then generic fallbacks.
+    const headerSelectors = [
+      // Illumio workload detail page: hostname is in the navbar label
+      '[data-tid="comp-navbar-label"]',
+      // Generic fallbacks
+      'h1', 'h2',
+      '[class*="PageHeader"] [class*="title"]',
+      '[class*="DetailHeader"]',
+      'header h1', 'header h2',
+      'main h1', 'main h2',
+    ];
+
+    let targetEl = null;
+    for (const selector of headerSelectors) {
+      try {
+        const elements = document.querySelectorAll(selector);
+        for (const el of elements) {
+          const text = el.textContent?.trim();
+          // Match the element containing the hostname (case-insensitive)
+          if (text && (text.toLowerCase() === hostname.toLowerCase() || text.toLowerCase().includes(hostname.toLowerCase()))) {
+            targetEl = el;
+            break;
+          }
+        }
+        if (targetEl) break;
+      } catch (e) { /* continue */ }
+    }
+
+    // Second pass: try the Illumio navbar label even if hostname doesn't match
+    // (the label may show the hostname in a different form)
+    if (!targetEl) {
+      targetEl = document.querySelector('[data-tid="comp-navbar-label"]');
+    }
+
+    // Fallback: find the first visible h1/h2
+    if (!targetEl) {
+      for (const tag of ['h1', 'h2']) {
+        const el = document.querySelector(tag);
+        if (el && el.offsetParent !== null) {
+          targetEl = el;
+          break;
+        }
+      }
+    }
+
+    if (!targetEl) {
+      log('Could not find header element to inject visualize button');
+      return;
+    }
+
+    // Create the button
+    const btn = document.createElement('button');
+    btn.id = 'illumio-reconciler-visualize-btn';
+    Object.assign(btn.style, {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '5px',
+      padding: '4px 12px',
+      marginLeft: '10px',
+      borderRadius: '6px',
+      background: '#eef2ff',
+      color: '#6366f1',
+      border: '1px solid #c7d2fe',
+      cursor: 'pointer',
+      fontSize: '12px',
+      fontWeight: '500',
+      fontFamily: 'system-ui, -apple-system, sans-serif',
+      lineHeight: '1',
+      verticalAlign: 'middle',
+      transition: 'background 0.15s, border-color 0.15s',
+      whiteSpace: 'nowrap',
+    });
+
+    btn.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="5" r="2"/>
+        <circle cx="5" cy="19" r="2"/>
+        <circle cx="19" cy="19" r="2"/>
+        <path d="M12 7v4M7.5 17.5L11 13M16.5 17.5L13 13" stroke-linecap="round"/>
+      </svg>
+      <span>Visualize</span>
+    `;
+
+    btn.addEventListener('mouseenter', () => {
+      btn.style.background = '#e0e7ff';
+      btn.style.borderColor = '#a5b4fc';
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.background = '#eef2ff';
+      btn.style.borderColor = '#c7d2fe';
+    });
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openGraphPage(hostname);
+    });
+
+    // Insert after the target element (as a sibling) or append to its parent
+    if (targetEl.parentNode) {
+      targetEl.parentNode.insertBefore(btn, targetEl.nextSibling);
+    }
+
+    log('Injected Visualize button next to:', targetEl.textContent?.trim());
+  }
+
+  function removeVisualizeButton() {
+    const btn = document.getElementById('illumio-reconciler-visualize-btn');
+    if (btn) btn.remove();
   }
 
   // Initialize

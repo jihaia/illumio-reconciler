@@ -1,7 +1,7 @@
 // Service Worker for Illumio CMDB Reconciler
 // Handles message passing and storage operations
 
-import { lookupCMDB } from './mock-data.js';
+import { lookupCMDB, getAllCMDBRecords, APPLICATIONS, getPortfolios, getApplicationsByPortfolio, getProductsByPortfolio, getApplicationsByProduct, getProductsByApplication, getRecordsByFilters } from './mock-data.js';
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -21,11 +21,6 @@ chrome.runtime.onInstalled.addListener(async () => {
   await chrome.storage.session.set({ [STORAGE_KEYS.VISITED_WORKLOADS]: {} });
 
   console.log('Illumio Reconciler: Service worker initialized');
-});
-
-// Open side panel when extension icon is clicked
-chrome.action.onClicked.addListener(async (tab) => {
-  await chrome.sidePanel.open({ tabId: tab.id });
 });
 
 // Message handler
@@ -55,15 +50,8 @@ async function handleMessage(request, sender) {
       return await handleWorkloadDetected(payload, sender);
 
     case 'notOnWorkloadPage':
-      // Notify side panel that we're not on a workload detail page
-      try {
-        await chrome.runtime.sendMessage({
-          action: 'notOnWorkloadPage',
-          payload: payload,
-        });
-      } catch (e) {
-        // Side panel may not be open
-      }
+      // Store navigation state so side panel can detect via storage listener
+      await chrome.storage.session.set({ _currentWorkloadPage: null });
       return { acknowledged: true };
 
     case 'lookupCMDB':
@@ -93,6 +81,32 @@ async function handleMessage(request, sender) {
     case 'resetSession':
       return await resetSession();
 
+    case 'getAllCMDBData':
+      return {
+        records: getAllCMDBRecords(),
+        applications: APPLICATIONS,
+        portfolios: getPortfolios(),
+      };
+
+    case 'getFilteredCMDBData':
+      return {
+        records: getRecordsByFilters(payload),
+        products: payload?.portfolio
+          ? getProductsByPortfolio(payload.portfolio)
+          : [],
+        applications: payload?.product
+          ? getApplicationsByProduct(payload.product).map(name => ({ name }))
+          : payload?.portfolio
+            ? getApplicationsByPortfolio(payload.portfolio).map(name => ({ name }))
+            : APPLICATIONS,
+      };
+
+    case 'openGraphPage':
+      return await openOrFocusGraphTab(payload);
+
+    case 'openGraphPopup':
+      return await openGraphPopupWindow(payload);
+
     default:
       throw new Error(`Unknown action: ${action}`);
   }
@@ -116,18 +130,12 @@ async function handleWorkloadDetected(workloadData, sender) {
     tabId: sender?.tab?.id,
   };
 
-  await chrome.storage.session.set({ [STORAGE_KEYS.VISITED_WORKLOADS]: visitedWorkloads });
+  await chrome.storage.session.set({
+    [STORAGE_KEYS.VISITED_WORKLOADS]: visitedWorkloads,
+    _currentWorkloadPage: key,
+  });
 
-  // Notify side panel of new workload
-  try {
-    await chrome.runtime.sendMessage({
-      action: 'workloadUpdated',
-      payload: visitedWorkloads[key],
-    });
-  } catch (e) {
-    // Side panel may not be open
-  }
-
+  // Side panel is notified via chrome.storage.session.onChanged listener
   return { success: true, workload: visitedWorkloads[key] };
 }
 
@@ -317,5 +325,48 @@ async function getValidations() {
 // Reset session (clear visited workloads)
 async function resetSession() {
   await chrome.storage.session.set({ [STORAGE_KEYS.VISITED_WORKLOADS]: {} });
+  return { success: true };
+}
+
+// Open graph tab or focus existing one
+// If payload.focus is provided, the graph page will auto-focus on that hostname
+async function openOrFocusGraphTab(payload) {
+  const graphUrl = chrome.runtime.getURL('graph/index.html');
+  const focusHash = payload?.focus ? `#focus=${encodeURIComponent(payload.focus)}` : '';
+  const targetUrl = graphUrl + focusHash;
+  const tabs = await chrome.tabs.query({ url: graphUrl });
+
+  if (tabs.length > 0) {
+    // Update existing tab with the new hash to trigger focus
+    await chrome.tabs.update(tabs[0].id, { active: true, url: targetUrl });
+    await chrome.windows.update(tabs[0].windowId, { focused: true });
+  } else {
+    await chrome.tabs.create({ url: targetUrl });
+  }
+
+  return { success: true };
+}
+
+// Open graph in a popup window (for content script visualize button)
+async function openGraphPopupWindow(payload) {
+  const graphUrl = chrome.runtime.getURL('graph/index.html');
+  const focusHash = payload?.focus ? `#focus=${encodeURIComponent(payload.focus)}` : '';
+  const targetUrl = graphUrl + focusHash;
+
+  // Size the popup to ~90% of the screen
+  const width = Math.round(screen.availWidth * 0.9);
+  const height = Math.round(screen.availHeight * 0.9);
+  const left = Math.round((screen.availWidth - width) / 2);
+  const top = Math.round((screen.availHeight - height) / 2);
+
+  await chrome.windows.create({
+    url: targetUrl,
+    type: 'popup',
+    width,
+    height,
+    left,
+    top,
+  });
+
   return { success: true };
 }

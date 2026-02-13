@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Chrome extension for reconciling CMDB records with Illumio workloads",
   "scripts": {
-    "build:css": "postcss src/sidepanel/styles.css -o dist/sidepanel/styles.css",
+    "build:css": "postcss src/sidepanel/styles.css -o dist/sidepanel/styles.css && postcss src/graph/styles.css -o dist/graph/styles.css",
     "build": "npm run build:css && node scripts/build.js",
     "dev": "chokidar 'src/**/*' 'public/**/*' -c 'npm run build' --initial"
   },

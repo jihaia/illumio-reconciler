@@ -263,6 +263,10 @@ export const CMDB_RECORDS = {
     last_updated: '2024-06-15T09:00:00Z',
     last_updated_by: 'chris.martinez@acme.com',
   },
+  // === MULTI-USE / SHARED INFRASTRUCTURE ===
+  // These workloads serve multiple applications across portfolios.
+  // The `applications` array lists additional apps beyond the primary.
+
   'api-gateway-01': {
     ci_id: 'CI0002010',
     hostname: 'api-gateway-01',
@@ -271,6 +275,11 @@ export const CMDB_RECORDS = {
     application_id: 'APP-012',
     product: 'Kong Gateway',
     product_portfolio: 'Platform Services',
+    applications: [
+      { application: 'Customer Portal', application_id: 'APP-010', product: 'Customer Portal API', product_portfolio: 'Digital Channels' },
+      { application: 'Payment Gateway', application_id: 'APP-015', product: 'Payment Processing Engine', product_portfolio: 'Payment Systems' },
+      { application: 'Workday Integration', application_id: 'APP-035', product: 'Workday Connector', product_portfolio: 'HR Systems' },
+    ],
     business_owner: 'Platform Team',
     business_owner_email: 'platform@acme.com',
     technical_owner: 'David Park',
@@ -290,6 +299,11 @@ export const CMDB_RECORDS = {
     application_id: 'APP-013',
     product: 'Redis Enterprise',
     product_portfolio: 'Platform Services',
+    applications: [
+      { application: 'Customer Portal', application_id: 'APP-010', product: 'Customer Portal API', product_portfolio: 'Digital Channels' },
+      { application: 'Oracle Financials', application_id: 'APP-001', product: 'Oracle Application Server', product_portfolio: 'Finance Systems' },
+      { application: 'Payment Gateway', application_id: 'APP-015', product: 'Payment Processing Engine', product_portfolio: 'Payment Systems' },
+    ],
     business_owner: 'Platform Team',
     business_owner_email: 'platform@acme.com',
     technical_owner: 'Lisa Wang',
@@ -297,9 +311,82 @@ export const CMDB_RECORDS = {
     cost_center: 'CC-8000',
     criticality: 'tier2',
     environment: 'production',
-    compliance_scope: [],
+    compliance_scope: ['PCI'],
     last_updated: '2024-11-25T11:00:00Z',
     last_updated_by: 'lisa.wang@acme.com',
+  },
+  'msg-broker-01': {
+    ci_id: 'CI0002012',
+    hostname: 'msg-broker-01',
+    fqdn: 'msg-broker-01.corp.acme.com',
+    application: 'Message Broker',
+    application_id: 'APP-014',
+    product: 'RabbitMQ',
+    product_portfolio: 'Platform Services',
+    applications: [
+      { application: 'Payment Gateway', application_id: 'APP-015', product: 'Payment Processing Engine', product_portfolio: 'Payment Systems' },
+      { application: 'Oracle Financials', application_id: 'APP-001', product: 'Oracle Application Server', product_portfolio: 'Finance Systems' },
+      { application: 'Data Warehouse', application_id: 'APP-025', product: 'Informatica PowerCenter', product_portfolio: 'Data & Analytics' },
+    ],
+    business_owner: 'Platform Team',
+    business_owner_email: 'platform@acme.com',
+    technical_owner: 'Chris Martinez',
+    technical_owner_email: 'chris.martinez@acme.com',
+    cost_center: 'CC-8000',
+    criticality: 'tier1',
+    environment: 'production',
+    compliance_scope: ['SOX', 'PCI'],
+    last_updated: '2024-11-20T14:00:00Z',
+    last_updated_by: 'chris.martinez@acme.com',
+  },
+  'shared-db-01': {
+    ci_id: 'CI0002013',
+    hostname: 'shared-db-01',
+    fqdn: 'shared-db-01.corp.acme.com',
+    application: 'Shared Database Cluster',
+    application_id: 'APP-016',
+    product: 'PostgreSQL',
+    product_portfolio: 'Platform Services',
+    applications: [
+      { application: 'Customer Portal', application_id: 'APP-010', product: 'Customer Portal API', product_portfolio: 'Digital Channels' },
+      { application: 'Workday Integration', application_id: 'APP-035', product: 'Workday Connector', product_portfolio: 'HR Systems' },
+      { application: 'Business Intelligence', application_id: 'APP-030', product: 'Tableau Server', product_portfolio: 'Data & Analytics' },
+      { application: 'Identity Management', application_id: 'APP-020', product: 'Okta Integration Server', product_portfolio: 'Security Infrastructure' },
+    ],
+    business_owner: 'Platform Team',
+    business_owner_email: 'platform@acme.com',
+    technical_owner: 'Lisa Wang',
+    technical_owner_email: 'lisa.wang@acme.com',
+    cost_center: 'CC-8000',
+    criticality: 'tier1',
+    environment: 'production',
+    compliance_scope: ['SOX', 'PCI', 'HIPAA'],
+    last_updated: '2024-12-08T10:15:00Z',
+    last_updated_by: 'lisa.wang@acme.com',
+  },
+  'log-aggregator-01': {
+    ci_id: 'CI0002014',
+    hostname: 'log-aggregator-01',
+    fqdn: 'log-aggregator-01.corp.acme.com',
+    application: 'Log Aggregation',
+    application_id: 'APP-017',
+    product: 'Elasticsearch',
+    product_portfolio: 'Platform Services',
+    applications: [
+      { application: 'Infrastructure Monitoring', application_id: 'APP-060', product: 'Prometheus/Grafana', product_portfolio: 'Platform Services' },
+      { application: 'Identity Management', application_id: 'APP-020', product: 'Okta Integration Server', product_portfolio: 'Security Infrastructure' },
+      { application: 'Secrets Management', application_id: 'APP-065', product: 'HashiCorp Vault', product_portfolio: 'Security Infrastructure' },
+    ],
+    business_owner: 'SRE Team',
+    business_owner_email: 'sre@acme.com',
+    technical_owner: 'Alex Thompson',
+    technical_owner_email: 'alex.thompson@acme.com',
+    cost_center: 'CC-8000',
+    criticality: 'tier2',
+    environment: 'production',
+    compliance_scope: ['SOX'],
+    last_updated: '2024-11-30T08:45:00Z',
+    last_updated_by: 'alex.thompson@acme.com',
   },
 
   // === PARTIAL DATA (incomplete CMDB records) ===
@@ -330,6 +417,10 @@ export const CMDB_RECORDS = {
     application_id: 'APP-060',
     product: 'Prometheus/Grafana',
     product_portfolio: 'Platform Services',
+    applications: [
+      { application: 'Container Platform', application_id: 'APP-050', product: 'Kubernetes', product_portfolio: 'Platform Services' },
+      { application: 'Payment Gateway', application_id: 'APP-015', product: 'Payment Processing Engine', product_portfolio: 'Payment Systems' },
+    ],
     business_owner: 'SRE Team',
     business_owner_email: 'sre@acme.com',
     technical_owner: 'Alex Thompson',
@@ -349,6 +440,11 @@ export const CMDB_RECORDS = {
     application_id: 'APP-065',
     product: 'HashiCorp Vault',
     product_portfolio: 'Security Infrastructure',
+    applications: [
+      { application: 'Payment Gateway', application_id: 'APP-015', product: 'Payment Processing Engine', product_portfolio: 'Payment Systems' },
+      { application: 'Oracle Financials', application_id: 'APP-001', product: 'Oracle Database 19c', product_portfolio: 'Finance Systems' },
+      { application: 'Identity Management', application_id: 'APP-020', product: 'Okta Integration Server', product_portfolio: 'Security Infrastructure' },
+    ],
     business_owner: 'Amanda Torres',
     business_owner_email: 'amanda.torres@acme.com',
     technical_owner: '',  // Missing
@@ -363,7 +459,7 @@ export const CMDB_RECORDS = {
 };
 
 // Mock data pools for generating dynamic CMDB records
-const APPLICATIONS = [
+export const APPLICATIONS = [
   { name: 'Flight Planning System', portfolio: 'Aviation Operations', id: 'APP-100' },
   { name: 'Navigation Data Service', portfolio: 'Aviation Operations', id: 'APP-101' },
   { name: 'Weather Integration Platform', portfolio: 'Aviation Operations', id: 'APP-102' },
@@ -515,9 +611,42 @@ export function lookupCMDB(hostname) {
 }
 
 /**
- * Get all CMDB records as an array
+ * Expand a raw CMDB record into one or more records.
+ * Multi-use workloads (those with an `applications` array) are expanded
+ * into one record per app mapping, each carrying the shared workload fields
+ * plus a `_multiUse` flag and the full list of app names.
+ */
+function expandRecord(record) {
+  const allApps = [
+    { application: record.application, application_id: record.application_id, product: record.product, product_portfolio: record.product_portfolio },
+    ...(record.applications || []),
+  ];
+  const isMultiUse = allApps.length > 1;
+  const appNames = allApps.map(a => a.application);
+
+  return allApps.map(appMapping => ({
+    ...record,
+    application: appMapping.application,
+    application_id: appMapping.application_id,
+    product: appMapping.product,
+    product_portfolio: appMapping.product_portfolio,
+    _multiUse: isMultiUse,
+    _allApplications: isMultiUse ? appNames : undefined,
+  }));
+}
+
+/**
+ * Get all CMDB records as an array.
+ * Multi-use workloads are expanded into one record per application mapping.
  */
 export function getAllCMDBRecords() {
+  return Object.values(CMDB_RECORDS).flatMap(expandRecord);
+}
+
+/**
+ * Get raw CMDB records without expansion (preserves `applications` array).
+ */
+export function getRawCMDBRecords() {
   return Object.values(CMDB_RECORDS);
 }
 
@@ -526,7 +655,80 @@ export function getAllCMDBRecords() {
  */
 export function searchByApplication(appName) {
   const lower = appName.toLowerCase();
-  return Object.values(CMDB_RECORDS).filter(record =>
+  return getAllCMDBRecords().filter(record =>
     record.application.toLowerCase().includes(lower)
   );
+}
+
+/**
+ * Get all unique product portfolios
+ */
+export function getPortfolios() {
+  const portfolios = new Set();
+  getAllCMDBRecords().forEach(r => {
+    if (r.product_portfolio) portfolios.add(r.product_portfolio);
+  });
+  APPLICATIONS.forEach(a => {
+    if (a.portfolio) portfolios.add(a.portfolio);
+  });
+  return Array.from(portfolios).sort();
+}
+
+/**
+ * Get applications belonging to a portfolio
+ */
+export function getApplicationsByPortfolio(portfolio) {
+  const apps = new Set();
+  getAllCMDBRecords().forEach(r => {
+    if (r.product_portfolio === portfolio) apps.add(r.application);
+  });
+  APPLICATIONS.forEach(a => {
+    if (a.portfolio === portfolio) apps.add(a.name);
+  });
+  return Array.from(apps).sort();
+}
+
+/**
+ * Get unique products belonging to a portfolio
+ */
+export function getProductsByPortfolio(portfolio) {
+  const products = new Set();
+  getAllCMDBRecords().forEach(r => {
+    if (r.product_portfolio === portfolio && r.product) products.add(r.product);
+  });
+  return Array.from(products).sort();
+}
+
+/**
+ * Get unique applications for a product
+ */
+export function getApplicationsByProduct(productName) {
+  const apps = new Set();
+  getAllCMDBRecords().forEach(r => {
+    if (r.product === productName && r.application) apps.add(r.application);
+  });
+  return Array.from(apps).sort();
+}
+
+/**
+ * Get unique products for an application
+ */
+export function getProductsByApplication(appName) {
+  const products = new Set();
+  getAllCMDBRecords().forEach(r => {
+    if (r.application === appName && r.product) products.add(r.product);
+  });
+  return Array.from(products).sort();
+}
+
+/**
+ * Get CMDB records filtered by portfolio, application, and/or product
+ */
+export function getRecordsByFilters({ portfolio, application, product } = {}) {
+  return getAllCMDBRecords().filter(r => {
+    if (portfolio && r.product_portfolio !== portfolio) return false;
+    if (application && r.application !== application) return false;
+    if (product && r.product !== product) return false;
+    return true;
+  });
 }

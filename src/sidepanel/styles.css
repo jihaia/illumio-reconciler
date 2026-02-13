@@ -204,3 +204,24 @@
 .dropdown-item.active {
   @apply bg-primary-50 text-primary-700;
 }
+
+/* Multi-use / shared infrastructure */
+.multi-use-banner {
+  @apply px-4 py-2 bg-amber-50 border-b border-amber-200 text-amber-700;
+}
+
+.additional-apps-list {
+  @apply border border-border rounded-lg overflow-hidden;
+}
+
+.additional-app-item {
+  @apply px-3 py-2 border-b border-border last:border-b-0 bg-gray-50 hover:bg-gray-100 transition-smooth;
+}
+
+/* Visualize button */
+.visualize-btn {
+  @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium cursor-pointer
+         bg-primary-50 text-primary-700 border border-primary-200
+         hover:bg-primary-100 hover:border-primary-300
+         transition-smooth;
+}

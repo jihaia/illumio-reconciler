@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Network Graph | Aperture</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-background">
+  <div class="graph-page">
+    <!-- Header -->
+    <header class="bg-white border-b border-border px-6 py-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2">
+            <svg class="w-6 h-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="5" r="2"/>
+              <circle cx="5" cy="19" r="2"/>
+              <circle cx="19" cy="19" r="2"/>
+              <path d="M12 7v4M7.5 17.5L11 13M16.5 17.5L13 13" stroke-linecap="round"/>
+            </svg>
+            <h1 class="text-lg font-semibold text-text">Network Graph</h1>
+          </div>
+          <span class="text-xs text-text-muted">|</span>
+          <span class="text-sm text-text-muted">SubjectData Aperture</span>
+        </div>
+        <div id="breadcrumb" class="breadcrumb"></div>
+      </div>
+    </header>
+
+    <!-- Filter bar -->
+    <div id="filter-bar" class="filter-bar">
+      <!-- Filters rendered by JS -->
+    </div>
+
+    <!-- Stats bar -->
+    <div id="stats-bar" class="stats-bar">
+      <!-- Stats rendered by JS -->
+    </div>
+
+    <!-- Main graph area -->
+    <div id="graph-wrapper" style="position: relative; flex: 1; min-height: 0;">
+      <div id="graph-container" style="width: 100%; height: 100%;"></div>
+
+      <!-- Loading overlay -->
+      <div id="graph-loading" class="graph-loading">
+        <div class="graph-loading-spinner">
+          <svg class="animate-spin h-10 w-10 text-primary" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span class="text-sm text-text-muted">Loading network graph...</span>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div id="graph-legend" class="graph-legend hidden">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Controls -->
+      <div id="graph-controls" class="graph-controls hidden">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- Detail panel (slide-in) -->
+    <div id="detail-panel">
+      <div class="detail-header">
+        <h2 id="detail-title" class="text-base font-semibold text-text"></h2>
+        <button id="close-detail" class="graph-control-btn" style="width:32px;height:32px;">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div id="detail-content" class="detail-body"></div>
+    </div>
+  </div>
+
+  <script src="../lib/vis-network.min.js"></script>
+  <script src="graph.js"></script>
+</body>
+</html>

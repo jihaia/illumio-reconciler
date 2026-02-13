@@ -1,0 +1,220 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Graph page layout */
+.graph-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#graph-wrapper {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 50%, #f8fafc 100%);
+}
+
+#graph-container {
+  width: 100%;
+  height: 100%;
+}
+
+#graph-container canvas {
+  outline: none;
+}
+
+/* Filter bar */
+.filter-bar {
+  @apply flex items-center gap-4 px-6 py-3 bg-white border-b border-border;
+}
+
+.filter-group {
+  @apply flex items-center gap-2;
+}
+
+.filter-label {
+  @apply text-xs font-medium text-text-muted uppercase tracking-wide whitespace-nowrap;
+}
+
+.filter-select {
+  @apply px-3 py-1.5 border border-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200;
+  min-width: 180px;
+}
+
+.filter-select:disabled {
+  @apply bg-gray-50 text-text-muted cursor-not-allowed opacity-60;
+}
+
+/* Detail panel */
+#detail-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 400px;
+  height: 100vh;
+  background: white;
+  border-left: 1px solid #e2e8f0;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.08);
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 50;
+  overflow-y: auto;
+}
+
+#detail-panel.open {
+  transform: translateX(0);
+}
+
+.detail-header {
+  @apply sticky top-0 bg-white border-b border-border px-5 py-4 flex items-center justify-between;
+}
+
+.detail-body {
+  @apply p-5 space-y-4;
+}
+
+/* Graph controls overlay */
+.graph-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 20;
+}
+
+.graph-control-btn {
+  @apply w-10 h-10 rounded-lg bg-white border border-border shadow-sm flex items-center justify-center text-text-muted hover:text-text hover:bg-gray-50 hover:shadow transition-all duration-200;
+  font-size: 18px;
+}
+
+.graph-control-btn:active {
+  @apply bg-gray-100 shadow-none;
+}
+
+.graph-control-btn.active {
+  @apply bg-primary-50 text-primary border-primary-200;
+}
+
+/* Legend */
+.graph-legend {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  @apply bg-white/95 backdrop-blur-sm border border-border rounded-lg p-4 text-xs shadow-sm;
+  z-index: 20;
+}
+
+.legend-title {
+  @apply font-semibold text-text mb-3 text-sm;
+}
+
+.legend-section {
+  @apply mb-3;
+}
+
+.legend-section:last-child {
+  @apply mb-0;
+}
+
+.legend-section-title {
+  @apply font-medium text-text-muted mb-1.5 uppercase tracking-wide;
+  font-size: 10px;
+}
+
+.legend-item {
+  @apply flex items-center gap-2 py-0.5;
+}
+
+.legend-dot {
+  @apply w-3 h-3 rounded-full flex-shrink-0;
+}
+
+.legend-diamond {
+  @apply w-3 h-3 flex-shrink-0;
+  transform: rotate(45deg);
+}
+
+.legend-box {
+  @apply w-3 h-3 rounded-sm flex-shrink-0;
+}
+
+/* Stats bar */
+.stats-bar {
+  @apply flex items-center gap-6 px-6 py-2 bg-gray-50 border-b border-border text-xs text-text-muted;
+}
+
+.stat-item {
+  @apply flex items-center gap-1.5;
+}
+
+.stat-value {
+  @apply font-semibold text-text;
+}
+
+/* Search highlight */
+.search-input {
+  @apply px-3 py-1.5 border border-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200;
+  width: 200px;
+}
+
+/* Loading overlay */
+.graph-loading {
+  @apply absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm z-30;
+}
+
+.graph-loading-spinner {
+  @apply flex flex-col items-center gap-3;
+}
+
+/* Empty state */
+.graph-empty {
+  @apply absolute inset-0 flex items-center justify-center;
+}
+
+.graph-empty-content {
+  @apply text-center;
+}
+
+/* Node tooltip enhancements */
+.vis-tooltip {
+  @apply bg-white border border-border rounded-lg shadow-lg p-3 text-sm !important;
+  max-width: 280px;
+  pointer-events: none;
+}
+
+/* Breadcrumb for drill-down */
+.breadcrumb {
+  @apply flex items-center gap-1 text-sm;
+}
+
+.breadcrumb-item {
+  @apply text-primary hover:text-primary-600 cursor-pointer;
+}
+
+.breadcrumb-separator {
+  @apply text-text-muted;
+}
+
+.breadcrumb-current {
+  @apply text-text font-medium;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}

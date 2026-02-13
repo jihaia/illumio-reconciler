@@ -48,19 +48,23 @@ class ReconcilerApp {
       await this.loadProgress();
       console.log('[SidePanel] Loaded progress:', this.progress);
 
-      // Listen for workload updates from background
-      chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-        console.log('[SidePanel] Received message:', request.action);
-        if (request.action === 'workloadUpdated') {
-          console.log('[SidePanel] Workload updated:', request.payload);
-          this.isOnDetailPage = true;
-          this.handleWorkloadUpdate(request.payload);
-        } else if (request.action === 'notOnWorkloadPage') {
-          console.log('[SidePanel] Not on workload page');
-          this.isOnDetailPage = false;
-          this.currentWorkload = null;
-          this.cmdbRecord = null;
-          this.render();
+      // Listen for workload updates via session storage changes
+      // (background writes to session storage when workloads are detected/cleared)
+      chrome.storage.session.onChanged.addListener((changes) => {
+        if (changes._currentWorkloadPage) {
+          const newVal = changes._currentWorkloadPage.newValue;
+          if (newVal === null) {
+            console.log('[SidePanel] Storage: navigated away from workload page');
+            this.isOnDetailPage = false;
+            this.currentWorkload = null;
+            this.cmdbRecord = null;
+            this.render();
+            return;
+          }
+        }
+        if (changes.visitedWorkloads) {
+          console.log('[SidePanel] Storage changed: visitedWorkloads updated');
+          this.handleStorageChange(changes.visitedWorkloads.newValue || {});
         }
       });
 
@@ -110,6 +114,37 @@ class ReconcilerApp {
     if (workload) {
       await this.selectWorkload(workload);
     }
+  }
+
+  async handleStorageChange(visitedWorkloads) {
+    // Find the most recently updated workload
+    const entries = Object.entries(visitedWorkloads);
+    if (entries.length === 0) return;
+
+    // Sort by lastSeen to find the most recent
+    let latest = null;
+    let latestTime = 0;
+    for (const [hostname, data] of entries) {
+      const time = new Date(data.lastSeen).getTime();
+      if (time > latestTime) {
+        latestTime = time;
+        latest = data;
+      }
+    }
+
+    if (!latest) return;
+
+    // Only update if this is a genuinely new/changed workload
+    // (avoid re-rendering when nothing relevant changed)
+    const currentHostname = this.currentWorkload?.hostname;
+    const latestHostname = latest.hostname;
+
+    // If we already show this workload and it hasn't changed, skip
+    if (currentHostname === latestHostname && this.cmdbRecord) return;
+
+    console.log('[SidePanel] Storage-based update, latest workload:', latestHostname);
+    this.isOnDetailPage = true;
+    await this.handleWorkloadUpdate(latest);
   }
 
   async loadVisitedWorkloads() {
@@ -317,7 +352,8 @@ class ReconcilerApp {
   getLabelPreview() {
     if (!this.cmdbRecord) return [];
 
-    const fields = { ...this.cmdbRecord, ...this.editedFields };
+    const c = this.cmdbRecord;
+    const fields = { ...c, ...this.editedFields };
     const labels = [];
 
     labels.push({ key: 'validated', value: 'yes' });
@@ -329,6 +365,18 @@ class ReconcilerApp {
     if (fields.product_portfolio) {
       labels.push({ key: 'portfolio', value: this.normalizeLabel(fields.product_portfolio) });
     }
+
+    // Add labels for additional applications (multi-use workloads)
+    if (c.applications && c.applications.length > 0) {
+      labels.push({ key: 'multi_use', value: 'true' });
+      c.applications.forEach((app, i) => {
+        labels.push({ key: `app_${i + 2}`, value: this.normalizeLabel(app.application) });
+        if (app.product_portfolio && app.product_portfolio !== fields.product_portfolio) {
+          labels.push({ key: `portfolio_${i + 2}`, value: this.normalizeLabel(app.product_portfolio) });
+        }
+      });
+    }
+
     if (fields.criticality) {
       labels.push({ key: 'criticality', value: fields.criticality });
     }
@@ -474,9 +522,20 @@ class ReconcilerApp {
         <div class="px-4 py-3">
           <div class="flex items-center justify-between mb-3">
             <h1 class="text-lg font-semibold text-text">ServiceNow <span class="ml-1 inline-flex items-center px-1.5 h-4 rounded-full text-[10px] font-medium bg-green-100 text-green-800">Connected</span></h1>
-            <button id="toggleViewBtn" class="text-sm text-primary hover:text-primary-600 font-medium">
-              ${this.view === 'workload' ? 'View All' : '← Back'}
-            </button>
+            <div class="flex items-center gap-2">
+              <button id="openGraphBtn" class="btn btn-sm btn-outline flex items-center gap-1 py-1" title="Open Network Graph">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="5" r="2"/>
+                  <circle cx="5" cy="19" r="2"/>
+                  <circle cx="19" cy="19" r="2"/>
+                  <path d="M12 7v4M7.5 17.5L11 13M16.5 17.5L13 13" stroke-linecap="round"/>
+                </svg>
+                <span class="text-xs">Graph</span>
+              </button>
+              <button id="toggleViewBtn" class="text-sm text-primary hover:text-primary-600 font-medium">
+                ${this.view === 'workload' ? 'View All' : '← Back'}
+              </button>
+            </div>
           </div>
           ${this.progress.visited > 0 ? `
             <div class="space-y-1">
@@ -664,6 +723,18 @@ class ReconcilerApp {
 
         ${c ? this.getCmdbCardHtml() : this.getNoMatchCardHtml()}
 
+        ${c ? `
+          <button class="visualize-btn w-full" data-hostname="${c.hostname}" title="Visualize this workload's connected model in the network graph">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="5" r="2"/>
+              <circle cx="5" cy="19" r="2"/>
+              <circle cx="19" cy="19" r="2"/>
+              <path d="M12 7v4M7.5 17.5L11 13M16.5 17.5L13 13" stroke-linecap="round"/>
+            </svg>
+            <span>Visualize Connected Model</span>
+          </button>
+        ` : ''}
+
         ${c ? this.getLabelPreviewHtml() : ''}
 
         ${isValidated ? this.getValidatedInfoHtml() : ''}
@@ -676,6 +747,8 @@ class ReconcilerApp {
   getCmdbCardHtml() {
     const c = this.cmdbRecord;
     const e = this.editedFields;
+    const isMultiUse = c.applications && c.applications.length > 0;
+    const totalApps = isMultiUse ? c.applications.length + 1 : 1;
 
     return `
       <div class="card">
@@ -691,9 +764,34 @@ class ReconcilerApp {
           </p>
         </div>
 
+        ${isMultiUse ? `
+          <div class="multi-use-banner">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+              </svg>
+              <span class="text-xs font-medium">Shared Infrastructure &mdash; serves ${totalApps} applications</span>
+            </div>
+          </div>
+        ` : ''}
+
         <div class="p-4 space-y-4">
           <div class="field-group">
-            <label class="field-label">Application</label>
+            <label class="field-label">Portfolio</label>
+            ${this.editMode ? `
+              <input type="text" class="input" id="edit_product_portfolio" value="${e.product_portfolio ?? c.product_portfolio ?? ''}">
+            ` : `
+              <div class="field-value">${e.product_portfolio ?? c.product_portfolio ?? '—'}</div>
+            `}
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Product</label>
+            <div class="field-value">${c.product ?? '—'}</div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Primary Application</label>
             ${this.editMode ? `
               <input type="text" class="input" id="edit_application" value="${e.application ?? c.application ?? ''}">
             ` : `
@@ -701,14 +799,7 @@ class ReconcilerApp {
             `}
           </div>
 
-          <div class="field-group">
-            <label class="field-label">Product Portfolio</label>
-            ${this.editMode ? `
-              <input type="text" class="input" id="edit_product_portfolio" value="${e.product_portfolio ?? c.product_portfolio ?? ''}">
-            ` : `
-              <div class="field-value">${e.product_portfolio ?? c.product_portfolio ?? '—'}</div>
-            `}
-          </div>
+          ${isMultiUse ? this.getAdditionalAppsHtml(c.applications) : ''}
 
           <div class="field-group">
             <label class="field-label">Business Owner</label>
@@ -792,6 +883,29 @@ class ReconcilerApp {
               </div>
             `}
           </div>
+        </div>
+      </div>
+    `;
+  }
+
+  getAdditionalAppsHtml(applications) {
+    return `
+      <div class="field-group">
+        <label class="field-label">Additional Applications (${applications.length})</label>
+        <div class="additional-apps-list">
+          ${applications.map(app => `
+            <div class="additional-app-item">
+              <div class="flex items-center gap-2">
+                <svg class="w-3.5 h-3.5 text-primary-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+                <div>
+                  <div class="text-sm font-medium text-text">${app.application}</div>
+                  <div class="text-xs text-text-muted">${app.product_portfolio}${app.product ? ` &rsaquo; ${app.product}` : ''}</div>
+                </div>
+              </div>
+            </div>
+          `).join('')}
         </div>
       </div>
     `;
@@ -928,6 +1042,11 @@ class ReconcilerApp {
     // Toggle view button
     document.getElementById('toggleViewBtn')?.addEventListener('click', () => this.toggleView());
 
+    // Open graph page (reuses existing tab if already open)
+    document.getElementById('openGraphBtn')?.addEventListener('click', () => {
+      chrome.runtime.sendMessage({ action: 'openGraphPage' });
+    });
+
     // Manual lookup
     const manualInput = document.getElementById('manualHostnameInput');
     const manualBtn = document.getElementById('manualLookupBtn');
@@ -952,6 +1071,14 @@ class ReconcilerApp {
           this.selectWorkload(workload);
           this.view = 'workload';
         }
+      });
+    });
+
+    // Visualize button - open graph page focused on this workload
+    document.querySelectorAll('.visualize-btn[data-hostname]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const hostname = btn.dataset.hostname;
+        chrome.runtime.sendMessage({ action: 'openGraphPage', payload: { focus: hostname } });
       });
     });
 
