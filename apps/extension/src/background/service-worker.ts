@@ -2,7 +2,8 @@
 // Handles message passing between content script, popup, and side panel
 
 import { ServiceNowClient } from '@/shared/api/servicenow-client';
-import type { ServiceNowConfig, ServerContext, ServiceInfo, AppComponent } from '@/shared/types';
+import { IllumioClient } from '@/shared/api/illumio-client';
+import type { ServiceNowConfig, IllumioConfig, IllumioWorkload, ServerContext, ServiceInfo, AppComponent } from '@/shared/types';
 import { db } from '@/shared/db/client';
 
 async function getServiceNowClient(): Promise<ServiceNowClient | null> {
@@ -10,6 +11,34 @@ async function getServiceNowClient(): Promise<ServiceNowClient | null> {
   if (!servicenow) return null;
   const config = servicenow as ServiceNowConfig;
   return new ServiceNowClient(config.instance, config.username, config.password);
+}
+
+async function getIllumioClient(): Promise<IllumioClient | null> {
+  const { illumio } = await chrome.storage.local.get('illumio');
+  if (!illumio) return null;
+  const config = illumio as IllumioConfig;
+  return new IllumioClient(config.pceUrl, config.apiKeyId, config.apiKeySecret, config.orgId);
+}
+
+const CMDB_API = 'http://localhost:8080';
+
+function notify(title: string, message: string) {
+  chrome.notifications.create(
+    `aperture-${Date.now()}`,
+    {
+      type: 'basic',
+      iconUrl: 'icons/icon128.png',
+      title,
+      message,
+    },
+    (id) => {
+      if (chrome.runtime.lastError) {
+        console.warn('[Aperture] Notification error:', chrome.runtime.lastError.message);
+      } else {
+        console.log('[Aperture] Notification shown:', id);
+      }
+    }
+  );
 }
 
 chrome.runtime.onInstalled.addListener(async () => {
@@ -90,11 +119,17 @@ async function handleMessage(
     case 'openGraphPopup':
       return await openGraphPopupWindow(payload);
 
+    case 'openAdminPage':
+      return await openAdminTab();
+
     case 'getAllCMDBData':
       return await getAllCMDBData(payload);
 
     case 'getServerContext':
       return await getServerContextAction(payload);
+
+    case 'lookupCMDBWorkload':
+      return await lookupCMDBWorkloadAction(payload);
 
     case 'getWorkloadsForService':
       return await getWorkloadsForServiceAction(payload);
@@ -104,6 +139,9 @@ async function handleMessage(
 
     case 'getServiceCatalog':
       return await getServiceCatalogAction();
+
+    case 'syncIllumioWorkloads':
+      return await syncIllumioWorkloadsAction();
 
     // ─── Database (SQLite via Native Messaging) ─────────────
     case 'dbPing':
@@ -355,6 +393,20 @@ async function openGraphPopupWindow(payload?: { focus?: string }) {
     top,
   });
 
+  return { success: true };
+}
+
+async function openAdminTab() {
+  const adminUrl = chrome.runtime.getURL('src/admin/index.html');
+  const tabs = await chrome.tabs.query({ url: adminUrl + '*' });
+  if (tabs.length > 0 && tabs[0].id) {
+    await chrome.tabs.update(tabs[0].id, { active: true });
+    if (tabs[0].windowId) {
+      await chrome.windows.update(tabs[0].windowId, { focused: true });
+    }
+  } else {
+    await chrome.tabs.create({ url: adminUrl });
+  }
   return { success: true };
 }
 
@@ -772,5 +824,141 @@ async function dbSeedFromServiceNowAction(
   } catch (err: any) {
     console.error('[Aperture] dbSeedFromServiceNow error:', err);
     return { success: false, error: err.message, partialResults: results };
+  }
+}
+
+// ─── CMDB API Lookup ────────────────────────────────────────
+
+async function lookupCMDBWorkloadAction(payload: { hostname?: string; ip?: string }) {
+  const hostname = payload?.hostname;
+  const ip = payload?.ip;
+  console.log('[Aperture] CMDB lookup request:', { hostname, ip });
+
+  if (!hostname && !ip) {
+    return { workload: null, error: 'hostname or ip required' };
+  }
+
+  try {
+    const param = hostname
+      ? `hostname=${encodeURIComponent(hostname)}`
+      : `ip=${encodeURIComponent(ip!)}`;
+
+    const url = `${CMDB_API}/v1/cmdb/workloads/lookup?${param}`;
+    console.log('[Aperture] CMDB lookup URL:', url);
+
+    const res = await fetch(url);
+    console.log('[Aperture] CMDB lookup response status:', res.status);
+
+    if (!res.ok) {
+      return { workload: null, error: `CMDB API error: ${res.status}` };
+    }
+
+    const data = await res.json();
+    console.log('[Aperture] CMDB lookup result:', data.workload ? 'found' : 'null', 'hierarchy:', data.hierarchy?.length || 0);
+    return data; // { workload, hierarchy }
+  } catch (err: any) {
+    console.error('[Aperture] CMDB lookup error:', err);
+    return { workload: null, error: err.message };
+  }
+}
+
+// ─── Illumio → CMDB Sync ───────────────────────────────────
+
+function mapIllumioWorkload(w: IllumioWorkload) {
+  // Find first IPv4 address from interfaces
+  const ipv4 = w.interfaces?.find(
+    i => i.address && !i.address.includes(':')
+  );
+
+  // Extract labels
+  const envLabel = w.labels?.find(l => l.key === 'env');
+  const locLabel = w.labels?.find(l => l.key === 'loc');
+
+  return {
+    hostname: w.hostname || w.name || '',
+    ip_address: ipv4?.address || null,
+    fqdn: null,
+    os: w.os_detail || w.os_id || null,
+    environment: envLabel?.value || null,
+    location: locLabel?.value || null,
+    class_type: null,
+    is_virtual: null,
+    description: w.description || null,
+  };
+}
+
+async function syncIllumioWorkloadsAction() {
+  const client = await getIllumioClient();
+  if (!client) return { success: false, error: 'Illumio not configured' };
+
+  const log = (msg: string) => console.log(`[Aperture Sync] ${msg}`);
+
+  try {
+    log('Starting Illumio workload sync...');
+    log('Step 1/4: Requesting async workload export from Illumio...');
+
+    const { workloads, total } = await client.getAllWorkloads();
+    log(`Step 2/4: Fetched ${workloads.length} workloads from Illumio (total: ${total})`);
+
+    // Deduplicate by hostname — Illumio often has multiple VEN registrations
+    // per host. Keep the first (most recent) entry for each hostname.
+    const hostnameMap = new Map<string, ReturnType<typeof mapIllumioWorkload>>();
+    for (const w of workloads) {
+      const m = mapIllumioWorkload(w);
+      if (m.hostname && !hostnameMap.has(m.hostname)) {
+        hostnameMap.set(m.hostname, m);
+      }
+    }
+    const mapped = Array.from(hostnameMap.values());
+    log(`Step 3/4: Deduped to ${mapped.length} unique hostnames (${workloads.length - mapped.length} duplicates removed)`);
+
+    // Send to CMDB API in batches of 500
+    const BATCH_SIZE = 500;
+    let created = 0, updated = 0, errors = 0;
+    const totalBatches = Math.ceil(mapped.length / BATCH_SIZE);
+
+    log(`Step 4/4: Upserting ${mapped.length} workloads in ${totalBatches} batch(es)...`);
+
+    for (let i = 0; i < mapped.length; i += BATCH_SIZE) {
+      const batchNum = Math.floor(i / BATCH_SIZE) + 1;
+      const batch = mapped.slice(i, i + BATCH_SIZE);
+      log(`  Batch ${batchNum}/${totalBatches}: sending ${batch.length} workloads to CMDB API...`);
+
+      const res = await fetch(`${CMDB_API}/v1/cmdb/workloads/bulk`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workloads: batch }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: res.statusText }));
+        console.error('[Aperture Sync] Bulk upsert batch failed:', err);
+        errors += batch.length;
+        log(`  Batch ${batchNum} FAILED: ${JSON.stringify(err)}`);
+        continue;
+      }
+
+      const result = await res.json();
+      created += result.created || 0;
+      updated += result.updated || 0;
+      errors += result.errors || 0;
+      log(`  Batch ${batchNum} done: +${result.created} created, +${result.updated} updated, +${result.errors} errors`);
+    }
+
+    log(`Sync complete: ${created} created, ${updated} updated, ${errors} errors out of ${mapped.length} total`);
+
+    notify(
+      'Illumio Sync Complete',
+      `${created} created, ${updated} updated, ${errors} errors (${mapped.length} total)`,
+    );
+
+    return { success: true, created, updated, errors, total: mapped.length };
+  } catch (err: any) {
+    console.error('[Aperture Sync] Error:', err);
+    log(`FAILED: ${err.message}`);
+
+    notify('Illumio Sync Failed', err.message);
+
+    return { success: false, error: err.message };
   }
 }

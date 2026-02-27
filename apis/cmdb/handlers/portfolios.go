@@ -15,8 +15,8 @@ var ListPortfolios = listHandler("portfolios", "name", func(c *gin.Context, qb *
 	}
 })
 
-var GetPortfolio = getHandler("portfolios")
-var DeletePortfolio = deleteHandler("portfolios")
+var GetPortfolio = getByPK("portfolios", "portfolio_id")
+var DeletePortfolio = deleteByPK("portfolios", "portfolio_id")
 
 func CreatePortfolio(c *gin.Context) {
 	var input struct {
@@ -30,16 +30,16 @@ func CreatePortfolio(c *gin.Context) {
 		return
 	}
 
-	result, err := getDB().ExecContext(c,
-		"INSERT INTO portfolios (name, snow_sys_id, state, description) VALUES (?, ?, ?, ?)",
-		input.Name, input.SnowSysId, input.State, input.Description)
+	id := newUUID()
+	_, err := getDB().ExecContext(c,
+		"INSERT INTO portfolios (portfolio_id, name, snow_sys_id, state, description) VALUES (?, ?, ?, ?, ?)",
+		id, input.Name, input.SnowSysId, input.State, input.Description)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	id, _ := result.LastInsertId()
-	row, err := scanRow(getDB(), c, "SELECT * FROM portfolios WHERE id = ?", id)
+	row, err := scanRow(getDB(), c, "SELECT * FROM portfolios WHERE portfolio_id = ?", id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -65,14 +65,14 @@ func UpdatePortfolio(c *gin.Context) {
 	}
 
 	_, err := getDB().ExecContext(c,
-		"UPDATE portfolios SET name=COALESCE(?,name), snow_sys_id=COALESCE(?,snow_sys_id), state=COALESCE(?,state), description=COALESCE(?,description), updated_at=datetime('now') WHERE id=?",
+		"UPDATE portfolios SET name=COALESCE(?,name), snow_sys_id=COALESCE(?,snow_sys_id), state=COALESCE(?,state), description=COALESCE(?,description), updated_at=datetime('now') WHERE portfolio_id=?",
 		input.Name, input.SnowSysId, input.State, input.Description, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	row, err := scanRow(getDB(), c, "SELECT * FROM portfolios WHERE id = ?", id)
+	row, err := scanRow(getDB(), c, "SELECT * FROM portfolios WHERE portfolio_id = ?", id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 		return

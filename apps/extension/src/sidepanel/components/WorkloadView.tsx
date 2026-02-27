@@ -1,5 +1,35 @@
 import { useState, useEffect } from 'react';
-import type { ServerContext } from '@/shared/types';
+
+interface CMDBWorkload {
+  workload_id: string;
+  hostname: string;
+  ip_address?: string;
+  fqdn?: string;
+  os?: string;
+  environment?: string;
+  location?: string;
+  class_type?: string;
+  is_virtual?: number;
+  description?: string;
+}
+
+interface CMDBHierarchyRow {
+  component_id: string;
+  component_name: string;
+  component_description?: string;
+  component_type?: string;
+  component_color?: string;
+  application_id: string;
+  application_name: string;
+  app_grouping_id: string;
+  app_grouping_name: string;
+  asset_id: string;
+  asset_name: string;
+  criticality?: string;
+  asset_environment?: string;
+  portfolio_id: string;
+  portfolio_name: string;
+}
 
 interface WorkloadViewProps {
   currentWorkload: any;
@@ -9,10 +39,9 @@ interface WorkloadViewProps {
 type LookupState =
   | { status: 'idle' }
   | { status: 'loading' }
-  | { status: 'not_configured' }
   | { status: 'no_match' }
   | { status: 'error'; message: string }
-  | { status: 'found'; context: ServerContext; matchType: string };
+  | { status: 'found'; workload: CMDBWorkload; hierarchy: CMDBHierarchyRow[] };
 
 export function WorkloadView({ currentWorkload }: WorkloadViewProps) {
   const [lookup, setLookup] = useState<LookupState>({ status: 'idle' });
@@ -24,35 +53,32 @@ export function WorkloadView({ currentWorkload }: WorkloadViewProps) {
       return;
     }
 
-    // Try to find an identifier to look up: first IP, then hostname
-    const identifier =
-      currentWorkload.ip_addresses?.[0] || currentWorkload.hostname;
+    const hostname = currentWorkload.hostname;
+    const ip = currentWorkload.ip_addresses?.[0];
 
-    if (!identifier) {
+    if (!hostname && !ip) {
       setLookup({ status: 'idle' });
       return;
     }
 
-    lookupWorkload(identifier);
+    lookupWorkload(hostname, ip);
   }, [currentWorkload?.hostname, currentWorkload?.ip_addresses?.join(',')]);
 
-  async function lookupWorkload(identifier: string) {
+  async function lookupWorkload(hostname?: string, ip?: string) {
     setLookup({ status: 'loading' });
     try {
       const result = await chrome.runtime.sendMessage({
-        action: 'getServerContext',
-        payload: { identifier },
+        action: 'lookupCMDBWorkload',
+        payload: { hostname, ip },
       });
 
-      if (result?.error === 'ServiceNow not configured') {
-        setLookup({ status: 'not_configured' });
-      } else if (result?.error) {
+      if (result?.error) {
         setLookup({ status: 'error', message: result.error });
-      } else if (result?.context) {
+      } else if (result?.workload) {
         setLookup({
           status: 'found',
-          context: result.context,
-          matchType: result.context.isMultiUse ? 'multi-use' : 'exact',
+          workload: result.workload,
+          hierarchy: result.hierarchy || [],
         });
       } else {
         setLookup({ status: 'no_match' });
@@ -79,19 +105,14 @@ export function WorkloadView({ currentWorkload }: WorkloadViewProps) {
         </svg>
         <p className="text-text font-medium mb-2">Navigate to an Illumio Workload</p>
         <p className="text-text-muted text-sm">
-          Open a workload detail page in Illumio to see its ServiceNow CMDB context
+          Open a workload detail page in Illumio to see its CMDB context
         </p>
       </div>
     );
   }
 
-  // Determine CMDB environments for mismatch comparison
-  const cmdbServerEnv = lookup.status === 'found' ? (lookup.context.server.environment ?? null) : null;
-  const cmdbServiceEnvs = lookup.status === 'found'
-    ? lookup.context.serviceDetails
-        .map(s => s.environment)
-        .filter((e): e is string => !!e)
-    : [];
+  // Determine environments for mismatch comparison
+  const cmdbEnv = lookup.status === 'found' ? (lookup.workload.environment ?? null) : null;
   const illumioEnv = currentWorkload.labels?.env;
 
   return (
@@ -102,13 +123,8 @@ export function WorkloadView({ currentWorkload }: WorkloadViewProps) {
           <h2 className="text-base font-semibold text-text truncate">
             {currentWorkload.hostname || 'Unknown Workload'}
           </h2>
-          {(cmdbServerEnv || illumioEnv || cmdbServiceEnvs.length > 0) && (
-            <EnvBadge
-              illumioEnv={illumioEnv ?? null}
-              cmdbServerEnv={cmdbServerEnv}
-              cmdbServiceEnvs={cmdbServiceEnvs}
-              serviceDetails={lookup.status === 'found' ? lookup.context.serviceDetails : []}
-            />
+          {(cmdbEnv || illumioEnv) && (
+            <EnvBadge illumioEnv={illumioEnv ?? null} cmdbEnv={cmdbEnv} />
           )}
         </div>
         {currentWorkload.ip_addresses?.length > 0 && (
@@ -136,13 +152,10 @@ export function WorkloadView({ currentWorkload }: WorkloadViewProps) {
         )}
       </div>
 
-      {/* ServiceNow CMDB lookup results */}
+      {/* CMDB lookup results */}
       <CMDBSection
         lookup={lookup}
-        onRetry={() => {
-          const id = currentWorkload.ip_addresses?.[0] || currentWorkload.hostname;
-          if (id) lookupWorkload(id);
-        }}
+        onRetry={() => lookupWorkload(currentWorkload.hostname, currentWorkload.ip_addresses?.[0])}
         onVisualize={openGraphForWorkload}
       />
     </div>
@@ -166,21 +179,7 @@ function CMDBSection({
     return (
       <div className="card p-6 text-center">
         <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-        <p className="text-xs text-text-muted">Looking up in ServiceNow CMDB...</p>
-      </div>
-    );
-  }
-
-  if (lookup.status === 'not_configured') {
-    return (
-      <div className="card p-4 text-center">
-        <svg className="w-8 h-8 mx-auto text-text-muted mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-        </svg>
-        <p className="text-sm font-medium text-text mb-1">ServiceNow not connected</p>
-        <p className="text-xs text-text-muted">
-          Open the Aperture popup and connect to ServiceNow to see CMDB context
-        </p>
+        <p className="text-xs text-text-muted">Looking up in CMDB...</p>
       </div>
     );
   }
@@ -212,7 +211,7 @@ function CMDBSection({
           <div>
             <p className="text-sm font-medium text-text">No CMDB match found</p>
             <p className="text-xs text-text-muted mt-0.5">
-              This workload was not found in ServiceNow CMDB. It may be unmanaged or use a different identifier.
+              This workload was not found in the CMDB. Try syncing workloads from Illumio first.
             </p>
           </div>
         </div>
@@ -223,8 +222,63 @@ function CMDBSection({
     );
   }
 
-  // Found
-  const { context, matchType } = lookup;
+  // Found — build hierarchy from flat rows
+  const { workload, hierarchy } = lookup;
+
+  // Group hierarchy by portfolio → asset → app grouping → application → component
+  const portfolios = new Map<string, {
+    name: string;
+    assets: Map<string, {
+      name: string;
+      criticality?: string;
+      environment?: string;
+      appGroupings: Map<string, {
+        name: string;
+        applications: Map<string, {
+          name: string;
+          components: Array<{ name: string; type?: string; color?: string; description?: string }>;
+        }>;
+      }>;
+    }>;
+  }>();
+
+  for (const row of hierarchy) {
+    if (!portfolios.has(row.portfolio_id)) {
+      portfolios.set(row.portfolio_id, { name: row.portfolio_name, assets: new Map() });
+    }
+    const portfolio = portfolios.get(row.portfolio_id)!;
+
+    if (!portfolio.assets.has(row.asset_id)) {
+      portfolio.assets.set(row.asset_id, {
+        name: row.asset_name,
+        criticality: row.criticality,
+        environment: row.asset_environment,
+        appGroupings: new Map(),
+      });
+    }
+    const asset = portfolio.assets.get(row.asset_id)!;
+
+    if (!asset.appGroupings.has(row.app_grouping_id)) {
+      asset.appGroupings.set(row.app_grouping_id, { name: row.app_grouping_name, applications: new Map() });
+    }
+    const appGrouping = asset.appGroupings.get(row.app_grouping_id)!;
+
+    if (!appGrouping.applications.has(row.application_id)) {
+      appGrouping.applications.set(row.application_id, { name: row.application_name, components: [] });
+    }
+    const app = appGrouping.applications.get(row.application_id)!;
+
+    app.components.push({
+      name: row.component_name,
+      type: row.component_type,
+      color: row.component_color,
+      description: row.component_description,
+    });
+  }
+
+  const uniquePortfolios = Array.from(portfolios.values());
+  const uniqueComponents = hierarchy.length;
+  const isMultiUse = uniquePortfolios.length > 1;
 
   return (
     <div className="space-y-3">
@@ -233,121 +287,122 @@ function CMDBSection({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
-              matchType === 'multi-use' ? 'bg-amber-500' : 'bg-green-500'
+              isMultiUse ? 'bg-amber-500' : hierarchy.length > 0 ? 'bg-green-500' : 'bg-gray-400'
             }`} />
             <span className="text-xs font-medium text-text">
-              {matchType === 'multi-use' ? 'Multi-use workload' : 'CMDB match found'}
+              {hierarchy.length === 0
+                ? 'Workload found (not assigned)'
+                : isMultiUse
+                  ? 'Multi-portfolio workload'
+                  : 'CMDB match found'}
             </span>
           </div>
-          {context.isMultiUse && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium">
-              {context.services.length} services
+          {uniqueComponents > 0 && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-medium">
+              {uniqueComponents} component{uniqueComponents !== 1 ? 's' : ''}
             </span>
           )}
         </div>
       </div>
 
-      {/* Server details from ServiceNow */}
+      {/* Workload details */}
       <div className="card p-4 space-y-3">
-        <SectionHeader title="Server (CMDB)" />
-        <Field label="Name" value={context.server.name} />
-        <Field label="IP" value={context.server.ip || '—'} mono />
-        {context.server.fqdn && (
-          <Field label="FQDN" value={context.server.fqdn} mono />
+        <SectionHeader title="Workload (CMDB)" />
+        <Field label="Hostname" value={workload.hostname} />
+        <Field label="IP" value={workload.ip_address || '—'} mono />
+        {workload.fqdn && <Field label="FQDN" value={workload.fqdn} mono />}
+        <Field label="OS" value={workload.os || '—'} />
+        <Field label="Environment" value={workload.environment || '—'} />
+        {workload.location && <Field label="Location" value={workload.location} />}
+        {workload.class_type && (
+          <Field label="Class" value={workload.class_type.replace(/^cmdb_ci_/, '').replace(/_/g, ' ')} />
         )}
-        <Field label="OS" value={context.server.os || '—'} />
-        <Field label="Environment" value={context.server.environment || '—'} />
-        {context.server.classType && (
-          <Field label="Class" value={context.server.classType.replace(/^cmdb_ci_/, '').replace(/_/g, ' ')} />
-        )}
-        {context.server.virtual && (
+        {workload.is_virtual === 1 && (
           <div className="flex items-baseline justify-between">
             <span className="text-xs text-text-muted">Virtual</span>
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-50 text-purple-600 font-medium">VM</span>
           </div>
         )}
-        {context.server.shortDescription && (
-          <Field label="Description" value={context.server.shortDescription} />
-        )}
+        {workload.description && <Field label="Description" value={workload.description} />}
       </div>
 
-      {/* Services */}
-      <div className="card p-4">
-        <SectionHeader title={`Services (${context.services.length})`} />
-        {context.services.length > 0 ? (
-          <div className="space-y-1.5 mt-2">
-            {(context.serviceDetails ?? context.services.map(s => ({ name: s }))).map((svc) => {
-              const detail = typeof svc === 'string' ? { name: svc } : svc;
-              return (
-                <div
-                  key={detail.name}
-                  className="px-2 py-1.5 rounded-lg bg-gray-50"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0" />
-                    <span className="text-xs text-text">{detail.name}</span>
-                  </div>
-                  {detail.fullName && detail.fullName !== detail.name && (
-                    <div className="text-[10px] text-gray-500 ml-3.5 mt-0.5">{detail.fullName}</div>
-                  )}
-                  {(detail.environment || detail.criticality || detail.infrastructure) && (
-                    <div className="flex items-center gap-1.5 ml-3.5 mt-1 flex-wrap">
-                      {detail.environment && (
-                        <span className="text-[10px] px-1 py-0.5 rounded bg-blue-50 text-blue-600">
-                          {detail.environment}
-                        </span>
-                      )}
-                      {detail.criticality && (
-                        <span className="text-[10px] px-1 py-0.5 rounded bg-gray-100 text-gray-500">
-                          {detail.criticality}
-                        </span>
-                      )}
-                      {detail.infrastructure && (
-                        <span className="text-[10px] px-1 py-0.5 rounded bg-gray-100 text-gray-500 capitalize">
-                          {detail.infrastructure.replace(/_/g, ' ')}
+      {/* Hierarchy: Portfolios → Assets → App Groupings → Applications → Components */}
+      {uniquePortfolios.length > 0 ? (
+        <div className="card p-4">
+          <SectionHeader title={`Hierarchy (${uniquePortfolios.length} portfolio${uniquePortfolios.length !== 1 ? 's' : ''})`} />
+          <div className="space-y-3 mt-2">
+            {uniquePortfolios.map((portfolio) => (
+              <div key={portfolio.name}>
+                {/* Portfolio */}
+                <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-blue-50">
+                  <span className="w-1.5 h-1.5 rounded-sm rotate-45 bg-blue-500 flex-shrink-0" />
+                  <span className="text-xs font-medium text-text">{portfolio.name}</span>
+                </div>
+
+                {/* Assets */}
+                {Array.from(portfolio.assets.values()).map((asset) => (
+                  <div key={asset.name} className="ml-3 mt-1.5">
+                    <div className="flex items-center gap-2 px-2 py-1 rounded bg-indigo-50">
+                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 flex-shrink-0" />
+                      <span className="text-xs text-text">{asset.name}</span>
+                      {asset.criticality && (
+                        <span className="text-[10px] px-1 py-0.5 rounded bg-gray-100 text-gray-500 ml-auto">
+                          {asset.criticality}
                         </span>
                       )}
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <p className="text-xs text-text-muted mt-2">No services linked</p>
-        )}
-      </div>
 
-      {/* Portfolios */}
-      <div className="card p-4">
-        <SectionHeader title={`Portfolios (${context.portfolios.length})`} />
-        {context.portfolios.length > 0 ? (
-          <div className="space-y-1.5 mt-2">
-            {context.portfolios.map((portfolio) => (
-              <div
-                key={portfolio}
-                className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-blue-50"
-              >
-                <span className="w-1.5 h-1.5 rounded-sm rotate-45 bg-blue-500 flex-shrink-0" />
-                <span className="text-xs font-medium text-text">{portfolio}</span>
+                    {/* App Groupings → Applications → Components */}
+                    {Array.from(asset.appGroupings.values()).map((ag) => (
+                      <div key={ag.name} className="ml-3 mt-1">
+                        <div className="text-[10px] text-text-muted px-2 py-0.5">{ag.name}</div>
+                        {Array.from(ag.applications.values()).map((app) => (
+                          <div key={app.name} className="ml-3 mt-0.5">
+                            <div className="flex items-center gap-2 px-2 py-1 rounded bg-green-50">
+                              <span className="w-1.5 h-1.5 rounded-full bg-green-400 flex-shrink-0" />
+                              <span className="text-xs text-text">{app.name}</span>
+                            </div>
+                            {app.components.map((comp, ci) => (
+                              <div key={ci} className="ml-3 mt-0.5 flex items-center gap-2 px-2 py-0.5">
+                                <span
+                                  className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                                  style={{ backgroundColor: comp.color || '#9ca3af' }}
+                                />
+                                <span className="text-[11px] text-text">{comp.name}</span>
+                                {comp.type && (
+                                  <span className="text-[10px] px-1 py-0.5 rounded bg-gray-100 text-gray-500 ml-auto">
+                                    {comp.type}
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                ))}
               </div>
             ))}
           </div>
-        ) : (
-          <p className="text-xs text-text-muted mt-2">No portfolios found</p>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="card p-4">
+          <SectionHeader title="Hierarchy" />
+          <p className="text-xs text-text-muted mt-2">Not assigned to any components yet</p>
+        </div>
+      )}
 
-      {/* Multi-use warning */}
-      {context.isMultiUse && (
+      {/* Multi-portfolio warning */}
+      {isMultiUse && (
         <div className="flex items-start gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
           <svg className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
           <div>
-            <p className="text-xs font-medium text-amber-700">Multi-use workload detected</p>
+            <p className="text-xs font-medium text-amber-700">Multi-portfolio workload</p>
             <p className="text-[10px] text-amber-600 mt-0.5">
-              This server supports {context.services.length} service{context.services.length !== 1 ? 's' : ''} across {context.portfolios.length} portfolio{context.portfolios.length !== 1 ? 's' : ''}. Illumio can only assign one Application label.
+              This workload is assigned to {uniquePortfolios.length} portfolios. Illumio can only assign one Application label.
             </p>
           </div>
         </div>
@@ -400,22 +455,15 @@ function normalizeEnv(env?: string | null): string | null {
 
 function EnvBadge({
   illumioEnv,
-  cmdbServerEnv,
-  cmdbServiceEnvs,
-  serviceDetails,
+  cmdbEnv,
 }: {
   illumioEnv: string | null;
-  cmdbServerEnv: string | null;
-  cmdbServiceEnvs: string[];
-  serviceDetails: import('@/shared/types').ServiceInfo[];
+  cmdbEnv: string | null;
 }) {
   const normalizedIllumio = normalizeEnv(illumioEnv);
-
-  // Determine display label: prefer Illumio label, fall back to CMDB server env
-  const displayEnv = illumioEnv || cmdbServerEnv;
+  const displayEnv = illumioEnv || cmdbEnv;
   if (!displayEnv) return null;
 
-  // If no Illumio env to compare against, show badge without status dot
   if (!normalizedIllumio) {
     return (
       <span
@@ -427,32 +475,17 @@ function EnvBadge({
     );
   }
 
-  // Compare Illumio env against CMDB server env and all service envs
-  const mismatches: string[] = [];
+  const hasCmdbData = !!cmdbEnv;
+  const isMatch = hasCmdbData && normalizeEnv(cmdbEnv) === normalizedIllumio;
+  const hasMismatch = hasCmdbData && !isMatch;
 
-  if (cmdbServerEnv && normalizeEnv(cmdbServerEnv) !== normalizedIllumio) {
-    mismatches.push(`Server: ${cmdbServerEnv}`);
-  }
-
-  for (let i = 0; i < cmdbServiceEnvs.length; i++) {
-    if (normalizeEnv(cmdbServiceEnvs[i]) !== normalizedIllumio) {
-      const svcName = serviceDetails[i]?.name || `Service ${i + 1}`;
-      mismatches.push(`${svcName}: ${cmdbServiceEnvs[i]}`);
-    }
-  }
-
-  const hasCmdbData = cmdbServerEnv || cmdbServiceEnvs.length > 0;
-  const isMatch = hasCmdbData && mismatches.length === 0;
-  const hasMismatch = mismatches.length > 0;
-
-  // Build tooltip
   let title: string;
   if (!hasCmdbData) {
     title = `Illumio: ${illumioEnv} (no CMDB data to compare)`;
   } else if (isMatch) {
-    title = `Illumio env "${illumioEnv}" matches all CMDB environments`;
+    title = `Illumio env "${illumioEnv}" matches CMDB "${cmdbEnv}"`;
   } else {
-    title = `Illumio: ${illumioEnv} — Mismatches: ${mismatches.join(', ')}`;
+    title = `Illumio: ${illumioEnv} — CMDB: ${cmdbEnv} (mismatch)`;
   }
 
   return (

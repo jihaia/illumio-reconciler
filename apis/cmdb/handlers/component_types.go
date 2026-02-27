@@ -6,6 +6,9 @@ var ListComponentTypes = listHandler("component_types", "label", func(c *gin.Con
 	if q := c.Query("q"); q != "" {
 		qb.addLike("label", q)
 	}
+	if classID := c.Query("class_id"); classID != "" {
+		qb.addFilter("component_class_id = ?", classID)
+	}
 })
 
-var GetComponentType = getHandler("component_types")
+var GetComponentType = getByPK("component_types", "component_type_id")

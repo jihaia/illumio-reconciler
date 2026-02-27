@@ -1,8 +1,8 @@
 {
   "run": {
     "command": "nx dev api-cmdb",
-    "startTime": "2026-02-27T01:12:13.523Z",
-    "endTime": "2026-02-27T01:53:30.076Z",
+    "startTime": "2026-02-27T05:34:20.999Z",
+    "endTime": "2026-02-27T13:42:51.824Z",
     "inner": false
   },
   "tasks": [
@@ -10,9 +10,9 @@
       "taskId": "api-cmdb:dev",
       "target": "dev",
       "projectName": "api-cmdb",
-      "hash": "640897538360524284",
-      "startTime": "2026-02-27T01:12:13.547Z",
-      "endTime": "2026-02-27T01:53:30.074Z",
+      "hash": "14617224554674085628",
+      "startTime": "2026-02-27T05:34:21.022Z",
+      "endTime": "2026-02-27T13:42:51.788Z",
       "params": "",
       "cacheStatus": "cache-miss",
       "status": 1

@@ -1,0 +1,33 @@
+> pnpm build
+
+[43m[30m WARN [39m[49m Unsupported engine: wanted: {"node":">=24.0.0"} (current: {"node":"v22.20.0","pnpm":"10.29.3"})
+
+> aperture-extension@1.0.0 build /Users/jihaia/Sandbox/customers/jeppesen-foreflight/illumio-reconciler/apps/extension
+> tsc && vite build
+
+[36mvite v5.4.21 [32mbuilding for production...[36m[39m
+transforming...
+[32m✓[39m 294 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mservice-worker-loader.js              [39m[1m[2m  0.05 kB[22m[1m[22m
+[2mdist/[22m[32micons/icon16.png                      [39m[1m[2m  0.50 kB[22m[1m[22m
+[2mdist/[22m[32msrc/sidepanel/index.html              [39m[1m[2m  0.51 kB[22m[1m[22m[2m │ gzip:  0.32 kB[22m
+[2mdist/[22m[32msrc/admin/index.html                  [39m[1m[2m  0.55 kB[22m[1m[22m[2m │ gzip:  0.34 kB[22m
+[2mdist/[22m[32msrc/popup/index.html                  [39m[1m[2m  0.60 kB[22m[1m[22m[2m │ gzip:  0.35 kB[22m
+[2mdist/[22m[32msrc/graph/index.html                  [39m[1m[2m  0.63 kB[22m[1m[22m[2m │ gzip:  0.36 kB[22m
+[2mdist/[22m[32micons/icon48.png                      [39m[1m[2m  1.33 kB[22m[1m[22m
+[2mdist/[22m[32mmanifest.json                         [39m[1m[2m  1.34 kB[22m[1m[22m[2m │ gzip:  0.54 kB[22m
+[2mdist/[22m[32m.vite/manifest.json                   [39m[1m[2m  1.91 kB[22m[1m[22m[2m │ gzip:  0.48 kB[22m
+[2mdist/[22m[32micons/icon128.png                     [39m[1m[2m  3.59 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[35mgraph-BZV40eAE.css             [39m[1m[2m 15.85 kB[22m[1m[22m[2m │ gzip:  2.66 kB[22m
+[2mdist/[22m[2massets/[22m[35mglobals-_miD2759.css           [39m[1m[2m 29.27 kB[22m[1m[22m[2m │ gzip:  5.54 kB[22m
+[2mdist/[22m[2massets/[22m[36millumio-client-D2CveEVP.js     [39m[1m[2m 11.64 kB[22m[1m[22m[2m │ gzip:  3.54 kB[22m
+[2mdist/[22m[2massets/[22m[36mmain.ts-CJzorlYW.js            [39m[1m[2m 12.82 kB[22m[1m[22m[2m │ gzip:  4.35 kB[22m
+[2mdist/[22m[2massets/[22m[36mpopup-CYEqUZbQ.js              [39m[1m[2m 18.25 kB[22m[1m[22m[2m │ gzip:  5.03 kB[22m
+[2mdist/[22m[2massets/[22m[36msidepanel-CTXw5Tx-.js          [39m[1m[2m 18.37 kB[22m[1m[22m[2m │ gzip:  4.97 kB[22m
+[2mdist/[22m[2massets/[22m[36mservice-worker.ts-Dwe2AwU0.js  [39m[1m[2m 19.01 kB[22m[1m[22m[2m │ gzip:  5.60 kB[22m
+[2mdist/[22m[2massets/[22m[36madmin-BtZvJRD9.js              [39m[1m[2m 39.71 kB[22m[1m[22m[2m │ gzip: 10.88 kB[22m
+[2mdist/[22m[2massets/[22m[36mglobals-yBUSxw4V.js            [39m[1m[2m172.26 kB[22m[1m[22m[2m │ gzip: 54.79 kB[22m
+[2mdist/[22m[2massets/[22m[36mgraph-CxAqMu1q.js              [39m[1m[2m224.27 kB[22m[1m[22m[2m │ gzip: 69.65 kB[22m
+[32m✓ built in 977ms[39m

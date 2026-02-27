@@ -34,11 +34,13 @@
     "sidePanel",
     "activeTab",
     "tabs",
-    "nativeMessaging"
+    "nativeMessaging",
+    "notifications"
   ],
   "host_permissions": [
     "https://*.service-now.com/*",
     "https://*.illum.io/*",
-    "https://*.illumio.com/*"
+    "https://*.illumio.com/*",
+    "http://localhost:8080/*"
   ]
 }

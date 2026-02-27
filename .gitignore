@@ -4,6 +4,7 @@ dist/
 .vite/
 *.local
 .env
+temp/
 
 # Native host generated files
 apps/extension/native-host/run-host.sh

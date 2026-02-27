@@ -13,15 +13,18 @@ var ListAssets = listHandler("assets", "name", func(c *gin.Context, qb *queryBui
 	if pid := c.Query("portfolio_id"); pid != "" {
 		qb.addFilter("portfolio_id = ?", pid)
 	}
+	if name := c.Query("name"); name != "" {
+		qb.addFilter("name = ?", name)
+	}
 })
 
-var GetAsset = getHandler("assets")
-var DeleteAsset = deleteHandler("assets")
+var GetAsset = getByPK("assets", "asset_id")
+var DeleteAsset = deleteByPK("assets", "asset_id")
 
 func CreateAsset(c *gin.Context) {
 	var input struct {
 		Name           string  `json:"name" binding:"required"`
-		PortfolioID    int64   `json:"portfolio_id" binding:"required"`
+		PortfolioID    string  `json:"portfolio_id" binding:"required"`
 		SnowSysId      *string `json:"snow_sys_id"`
 		FullName       *string `json:"full_name"`
 		Description    *string `json:"description"`
@@ -35,18 +38,18 @@ func CreateAsset(c *gin.Context) {
 		return
 	}
 
-	result, err := getDB().ExecContext(c,
-		`INSERT INTO assets (name, portfolio_id, snow_sys_id, full_name, description, criticality, environment, category, infrastructure)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		input.Name, input.PortfolioID, input.SnowSysId, input.FullName, input.Description,
+	id := newUUID()
+	_, err := getDB().ExecContext(c,
+		`INSERT INTO assets (asset_id, name, portfolio_id, snow_sys_id, full_name, description, criticality, environment, category, infrastructure)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		id, input.Name, input.PortfolioID, input.SnowSysId, input.FullName, input.Description,
 		input.Criticality, input.Environment, input.Category, input.Infrastructure)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	id, _ := result.LastInsertId()
-	row, err := scanRow(getDB(), c, "SELECT * FROM assets WHERE id = ?", id)
+	row, err := scanRow(getDB(), c, "SELECT * FROM assets WHERE asset_id = ?", id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -62,7 +65,7 @@ func UpdateAsset(c *gin.Context) {
 
 	var input struct {
 		Name           *string `json:"name"`
-		PortfolioID    *int64  `json:"portfolio_id"`
+		PortfolioID    *string `json:"portfolio_id"`
 		SnowSysId      *string `json:"snow_sys_id"`
 		FullName       *string `json:"full_name"`
 		Description    *string `json:"description"`
@@ -83,7 +86,7 @@ func UpdateAsset(c *gin.Context) {
 			description=COALESCE(?,description), criticality=COALESCE(?,criticality),
 			environment=COALESCE(?,environment), category=COALESCE(?,category),
 			infrastructure=COALESCE(?,infrastructure), updated_at=datetime('now')
-		 WHERE id=?`,
+		 WHERE asset_id=?`,
 		input.Name, input.PortfolioID, input.SnowSysId, input.FullName,
 		input.Description, input.Criticality, input.Environment, input.Category,
 		input.Infrastructure, id)
@@ -92,7 +95,7 @@ func UpdateAsset(c *gin.Context) {
 		return
 	}
 
-	row, err := scanRow(getDB(), c, "SELECT * FROM assets WHERE id = ?", id)
+	row, err := scanRow(getDB(), c, "SELECT * FROM assets WHERE asset_id = ?", id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 		return

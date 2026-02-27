@@ -141,6 +141,12 @@ export interface IllumioWorkload {
   href: string;
   name: string;
   hostname?: string;
+  description?: string | null;
+  os_id?: string;
+  os_detail?: string;
+  public_ip?: string;
+  online?: boolean;
+  managed?: boolean;
   interfaces: Array<{
     address: string;
     cidr_block?: number;

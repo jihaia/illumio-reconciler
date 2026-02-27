@@ -10,35 +10,147 @@
         "hash": "4219589121026285388"
       },
       {
-        "file": "pnpm-workspace.yaml",
-        "hash": "1134632198837000327"
-      },
-      {
-        "file": ".claude/settings.local.json",
-        "hash": "10030657174925809601"
-      },
-      {
-        "file": "pnpm-lock.yaml",
-        "hash": "2912788078041989673"
-      },
-      {
-        "file": "go.work",
-        "hash": "7762846419282181543"
+        "file": ".go-version",
+        "hash": "13408005081001275839"
       },
       {
         "file": ".nvmrc",
         "hash": "6929075154623388995"
       },
       {
-        "file": "package.json",
-        "hash": "9894928099395022859"
+        "file": ".vscode/settings.json",
+        "hash": "13687692084584818192"
+      },
+      {
+        "file": "go.work",
+        "hash": "7762846419282181543"
       },
       {
         "file": "nx.json",
         "hash": "10748337985413718958"
+      },
+      {
+        "file": "package.json",
+        "hash": "9894928099395022859"
+      },
+      {
+        "file": "pnpm-lock.yaml",
+        "hash": "2912788078041989673"
+      },
+      {
+        "file": "pnpm-workspace.yaml",
+        "hash": "1134632198837000327"
+      },
+      {
+        "file": "temp/servicenow_ci_classes.csv",
+        "hash": "4290143882274394002"
+      },
+      {
+        "file": "temp/servicenow_ci_classes_in_use.csv",
+        "hash": "2535812126561045894"
+      },
+      {
+        "file": "temp/servicenow_ci_hierarchy.csv",
+        "hash": "4302122130412353680"
       }
     ],
     "projectFileMap": {
+      "api-cmdb": [
+        {
+          "file": "apis/cmdb/db/db.go",
+          "hash": "5116915042885541291"
+        },
+        {
+          "file": "apis/cmdb/go.mod",
+          "hash": "9555995813504383213"
+        },
+        {
+          "file": "apis/cmdb/handlers/app_groupings.go",
+          "hash": "6512023449669978532"
+        },
+        {
+          "file": "apis/cmdb/handlers/applications.go",
+          "hash": "5373532107338836274"
+        },
+        {
+          "file": "apis/cmdb/handlers/assets.go",
+          "hash": "16422041667213556592"
+        },
+        {
+          "file": "apis/cmdb/handlers/component_classes.go",
+          "hash": "8889632213490160065"
+        },
+        {
+          "file": "apis/cmdb/handlers/component_types.go",
+          "hash": "12214679406897829246"
+        },
+        {
+          "file": "apis/cmdb/handlers/component_workloads.go",
+          "hash": "9316261776562472869"
+        },
+        {
+          "file": "apis/cmdb/handlers/components.go",
+          "hash": "9972026145146805064"
+        },
+        {
+          "file": "apis/cmdb/handlers/health.go",
+          "hash": "2897862571558030297"
+        },
+        {
+          "file": "apis/cmdb/handlers/helpers.go",
+          "hash": "327858030069013349"
+        },
+        {
+          "file": "apis/cmdb/handlers/portfolios.go",
+          "hash": "16606515955487948053"
+        },
+        {
+          "file": "apis/cmdb/handlers/workloads.go",
+          "hash": "13766511907774558741"
+        },
+        {
+          "file": "apis/cmdb/main.go",
+          "hash": "3274008765274108085"
+        },
+        {
+          "file": "apis/cmdb/project.json",
+          "hash": "11950692148820966116"
+        },
+        {
+          "file": "apis/cmdb/routes/router.go",
+          "hash": "6449998320439733228"
+        }
+      ],
+      "migrations": [
+        {
+          "file": "packages/migrations/cmd/main.go",
+          "hash": "1640480854390996774"
+        },
+        {
+          "file": "packages/migrations/go.mod",
+          "hash": "13881894968639038483"
+        },
+        {
+          "file": "packages/migrations/migrate.go",
+          "hash": "16491855454341241345"
+        },
+        {
+          "file": "packages/migrations/project.json",
+          "hash": "17786622448433873691"
+        },
+        {
+          "file": "packages/migrations/sql/001_initial_schema.sql",
+          "hash": "17406385638894353142"
+        },
+        {
+          "file": "packages/migrations/sql/002_seed_component_types.sql",
+          "hash": "3995752596394582387"
+        },
+        {
+          "file": "packages/migrations/sql/003_component_classes.sql",
+          "hash": "15416403664015898017"
+        }
+      ],
       "extension": [
         {
           "file": "apps/extension/.nvmrc",
@@ -50,39 +162,7 @@
         },
         {
           "file": "apps/extension/manifest.json",
-          "hash": "563992888808192314"
-        },
-        {
-          "file": "apps/extension/native-host/com.aperture.db.json",
-          "hash": "11804018083142339409"
-        },
-        {
-          "file": "apps/extension/native-host/db/migrations/001_initial_schema.sql",
-          "hash": "13088848883391202618"
-        },
-        {
-          "file": "apps/extension/native-host/db/migrations/002_seed_component_types.sql",
-          "hash": "18182843060530322170"
-        },
-        {
-          "file": "apps/extension/native-host/host.js",
-          "hash": "5315464065331528518"
-        },
-        {
-          "file": "apps/extension/native-host/install.sh",
-          "hash": "12701650998401451844"
-        },
-        {
-          "file": "apps/extension/native-host/package-lock.json",
-          "hash": "3069808045452136122"
-        },
-        {
-          "file": "apps/extension/native-host/package.json",
-          "hash": "6463962580602068599"
-        },
-        {
-          "file": "apps/extension/native-host/test-host.js",
-          "hash": "12446884795120771343"
+          "hash": "12102326711519760823"
         },
         {
           "file": "apps/extension/package-lock.json",
@@ -181,8 +261,76 @@
           "hash": "5991891227851150758"
         },
         {
+          "file": "apps/extension/src/admin/App.tsx",
+          "hash": "18339663175613350333"
+        },
+        {
+          "file": "apps/extension/src/admin/api.ts",
+          "hash": "4184786035378026137"
+        },
+        {
+          "file": "apps/extension/src/admin/components/AdminHeader.tsx",
+          "hash": "11693618744729517441"
+        },
+        {
+          "file": "apps/extension/src/admin/components/CsvImport.tsx",
+          "hash": "12088871683557570022"
+        },
+        {
+          "file": "apps/extension/src/admin/components/DeleteConfirm.tsx",
+          "hash": "8935296954696466891"
+        },
+        {
+          "file": "apps/extension/src/admin/components/EntityDetail.tsx",
+          "hash": "15608126056185625518"
+        },
+        {
+          "file": "apps/extension/src/admin/components/TreeNode.tsx",
+          "hash": "13566368983327010510"
+        },
+        {
+          "file": "apps/extension/src/admin/components/TreeView.tsx",
+          "hash": "4795718902853155588"
+        },
+        {
+          "file": "apps/extension/src/admin/components/WorkloadLinker.tsx",
+          "hash": "5999500059716991239"
+        },
+        {
+          "file": "apps/extension/src/admin/components/forms/AppGroupingForm.tsx",
+          "hash": "2546200164032785221"
+        },
+        {
+          "file": "apps/extension/src/admin/components/forms/ApplicationForm.tsx",
+          "hash": "4046967735923094973"
+        },
+        {
+          "file": "apps/extension/src/admin/components/forms/AssetForm.tsx",
+          "hash": "6345309341357024581"
+        },
+        {
+          "file": "apps/extension/src/admin/components/forms/ComponentForm.tsx",
+          "hash": "597108337468706641"
+        },
+        {
+          "file": "apps/extension/src/admin/components/forms/PortfolioForm.tsx",
+          "hash": "13938061883426450675"
+        },
+        {
+          "file": "apps/extension/src/admin/index.html",
+          "hash": "6862475201292913885"
+        },
+        {
+          "file": "apps/extension/src/admin/main.tsx",
+          "hash": "15736604332703451353"
+        },
+        {
+          "file": "apps/extension/src/admin/types.ts",
+          "hash": "9463092951611120690"
+        },
+        {
           "file": "apps/extension/src/background/service-worker.ts",
-          "hash": "13078687810382358820"
+          "hash": "15999435476990088760"
         },
         {
           "file": "apps/extension/src/content/main.ts",
@@ -290,7 +438,7 @@
         },
         {
           "file": "apps/extension/src/shared/api/illumio-client.ts",
-          "hash": "9643763470014557179"
+          "hash": "4363394750046721029"
         },
         {
           "file": "apps/extension/src/shared/api/servicenow-client.ts",
@@ -330,7 +478,7 @@
         },
         {
           "file": "apps/extension/src/shared/types/index.ts",
-          "hash": "17141824064262234105"
+          "hash": "14449691853242491293"
         },
         {
           "file": "apps/extension/src/sidepanel/App.tsx",
@@ -346,11 +494,11 @@
         },
         {
           "file": "apps/extension/src/sidepanel/components/Header.tsx",
-          "hash": "14126367914596534973"
+          "hash": "10862793995042647360"
         },
         {
           "file": "apps/extension/src/sidepanel/components/WorkloadView.tsx",
-          "hash": "10997331064995435320"
+          "hash": "4250677553312327311"
         },
         {
           "file": "apps/extension/src/sidepanel/hooks/useCurrentWorkload.ts",
@@ -382,91 +530,7 @@
         },
         {
           "file": "apps/extension/vite.config.ts",
-          "hash": "5456691118578764600"
-        }
-      ],
-      "api-cmdb": [
-        {
-          "file": "apis/cmdb/db/db.go",
-          "hash": "5116915042885541291"
-        },
-        {
-          "file": "apis/cmdb/go.mod",
-          "hash": "9555995813504383213"
-        },
-        {
-          "file": "apis/cmdb/handlers/app_groupings.go",
-          "hash": "1480462624567790691"
-        },
-        {
-          "file": "apis/cmdb/handlers/applications.go",
-          "hash": "7338188027018331743"
-        },
-        {
-          "file": "apis/cmdb/handlers/assets.go",
-          "hash": "4292708912719884724"
-        },
-        {
-          "file": "apis/cmdb/handlers/component_types.go",
-          "hash": "6609385461356750115"
-        },
-        {
-          "file": "apis/cmdb/handlers/components.go",
-          "hash": "9071882005011288385"
-        },
-        {
-          "file": "apis/cmdb/handlers/health.go",
-          "hash": "2897862571558030297"
-        },
-        {
-          "file": "apis/cmdb/handlers/helpers.go",
-          "hash": "4251803370319688755"
-        },
-        {
-          "file": "apis/cmdb/handlers/portfolios.go",
-          "hash": "16760761028492543886"
-        },
-        {
-          "file": "apis/cmdb/handlers/workloads.go",
-          "hash": "8838982528902922041"
-        },
-        {
-          "file": "apis/cmdb/main.go",
-          "hash": "3274008765274108085"
-        },
-        {
-          "file": "apis/cmdb/project.json",
-          "hash": "11950692148820966116"
-        },
-        {
-          "file": "apis/cmdb/routes/router.go",
-          "hash": "3153815134610458841"
-        }
-      ],
-      "migrations": [
-        {
-          "file": "packages/migrations/cmd/main.go",
-          "hash": "1640480854390996774"
-        },
-        {
-          "file": "packages/migrations/go.mod",
-          "hash": "13881894968639038483"
-        },
-        {
-          "file": "packages/migrations/migrate.go",
-          "hash": "16491855454341241345"
-        },
-        {
-          "file": "packages/migrations/project.json",
-          "hash": "17786622448433873691"
-        },
-        {
-          "file": "packages/migrations/sql/001_initial_schema.sql",
-          "hash": "13088848883391202618"
-        },
-        {
-          "file": "packages/migrations/sql/002_seed_component_types.sql",
-          "hash": "18182843060530322170"
+          "hash": "13799462484624043587"
         }
       ]
     }

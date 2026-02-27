@@ -13,32 +13,35 @@ var ListApplications = listHandler("applications", "name", func(c *gin.Context, 
 	if gid := c.Query("app_grouping_id"); gid != "" {
 		qb.addFilter("app_grouping_id = ?", gid)
 	}
+	if name := c.Query("name"); name != "" {
+		qb.addFilter("name = ?", name)
+	}
 })
 
-var GetApplication = getHandler("applications")
-var DeleteApplication = deleteHandler("applications")
+var GetApplication = getByPK("applications", "application_id")
+var DeleteApplication = deleteByPK("applications", "application_id")
 
 func CreateApplication(c *gin.Context) {
 	var input struct {
-		Name           string  `json:"name" binding:"required"`
-		AppGroupingID  int64   `json:"app_grouping_id" binding:"required"`
-		Description    *string `json:"description"`
+		Name          string  `json:"name" binding:"required"`
+		AppGroupingID string  `json:"app_grouping_id" binding:"required"`
+		Description   *string `json:"description"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	result, err := getDB().ExecContext(c,
-		"INSERT INTO applications (name, app_grouping_id, description) VALUES (?, ?, ?)",
-		input.Name, input.AppGroupingID, input.Description)
+	id := newUUID()
+	_, err := getDB().ExecContext(c,
+		"INSERT INTO applications (application_id, name, app_grouping_id, description) VALUES (?, ?, ?, ?)",
+		id, input.Name, input.AppGroupingID, input.Description)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	id, _ := result.LastInsertId()
-	row, err := scanRow(getDB(), c, "SELECT * FROM applications WHERE id = ?", id)
+	row, err := scanRow(getDB(), c, "SELECT * FROM applications WHERE application_id = ?", id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -54,7 +57,7 @@ func UpdateApplication(c *gin.Context) {
 
 	var input struct {
 		Name          *string `json:"name"`
-		AppGroupingID *int64  `json:"app_grouping_id"`
+		AppGroupingID *string `json:"app_grouping_id"`
 		Description   *string `json:"description"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -66,14 +69,14 @@ func UpdateApplication(c *gin.Context) {
 		`UPDATE applications SET
 			name=COALESCE(?,name), app_grouping_id=COALESCE(?,app_grouping_id),
 			description=COALESCE(?,description), updated_at=datetime('now')
-		 WHERE id=?`,
+		 WHERE application_id=?`,
 		input.Name, input.AppGroupingID, input.Description, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	row, err := scanRow(getDB(), c, "SELECT * FROM applications WHERE id = ?", id)
+	row, err := scanRow(getDB(), c, "SELECT * FROM applications WHERE application_id = ?", id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 		return

@@ -13,15 +13,18 @@ var ListAppGroupings = listHandler("app_groupings", "name", func(c *gin.Context,
 	if aid := c.Query("asset_id"); aid != "" {
 		qb.addFilter("asset_id = ?", aid)
 	}
+	if name := c.Query("name"); name != "" {
+		qb.addFilter("name = ?", name)
+	}
 })
 
-var GetAppGrouping = getHandler("app_groupings")
-var DeleteAppGrouping = deleteHandler("app_groupings")
+var GetAppGrouping = getByPK("app_groupings", "app_grouping_id")
+var DeleteAppGrouping = deleteByPK("app_groupings", "app_grouping_id")
 
 func CreateAppGrouping(c *gin.Context) {
 	var input struct {
 		Name        string  `json:"name" binding:"required"`
-		AssetID     int64   `json:"asset_id" binding:"required"`
+		AssetID     string  `json:"asset_id" binding:"required"`
 		Description *string `json:"description"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -29,16 +32,16 @@ func CreateAppGrouping(c *gin.Context) {
 		return
 	}
 
-	result, err := getDB().ExecContext(c,
-		"INSERT INTO app_groupings (name, asset_id, description) VALUES (?, ?, ?)",
-		input.Name, input.AssetID, input.Description)
+	id := newUUID()
+	_, err := getDB().ExecContext(c,
+		"INSERT INTO app_groupings (app_grouping_id, name, asset_id, description) VALUES (?, ?, ?, ?)",
+		id, input.Name, input.AssetID, input.Description)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	id, _ := result.LastInsertId()
-	row, err := scanRow(getDB(), c, "SELECT * FROM app_groupings WHERE id = ?", id)
+	row, err := scanRow(getDB(), c, "SELECT * FROM app_groupings WHERE app_grouping_id = ?", id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -54,7 +57,7 @@ func UpdateAppGrouping(c *gin.Context) {
 
 	var input struct {
 		Name        *string `json:"name"`
-		AssetID     *int64  `json:"asset_id"`
+		AssetID     *string `json:"asset_id"`
 		Description *string `json:"description"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -66,14 +69,14 @@ func UpdateAppGrouping(c *gin.Context) {
 		`UPDATE app_groupings SET
 			name=COALESCE(?,name), asset_id=COALESCE(?,asset_id),
 			description=COALESCE(?,description), updated_at=datetime('now')
-		 WHERE id=?`,
+		 WHERE app_grouping_id=?`,
 		input.Name, input.AssetID, input.Description, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	row, err := scanRow(getDB(), c, "SELECT * FROM app_groupings WHERE id = ?", id)
+	row, err := scanRow(getDB(), c, "SELECT * FROM app_groupings WHERE app_grouping_id = ?", id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 		return

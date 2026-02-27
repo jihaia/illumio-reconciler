@@ -63,13 +63,24 @@ func NewRouter() *gin.Engine {
 		v1.PUT("/components/:id", handlers.UpdateComponent)
 		v1.DELETE("/components/:id", handlers.DeleteComponent)
 
-		// Component Types (read-only)
+		// Component Classes (read-only)
+		v1.GET("/component-classes", handlers.ListComponentClasses)
+		v1.GET("/component-classes/:id", handlers.GetComponentClass)
+
+		// Component Types (read-only, filterable by ?class_id=)
 		v1.GET("/component-types", handlers.ListComponentTypes)
 		v1.GET("/component-types/:id", handlers.GetComponentType)
 
+		// Component-Workload Junction
+		v1.GET("/components/:id/workloads", handlers.ListComponentWorkloads)
+		v1.POST("/components/:id/workloads", handlers.LinkWorkload)
+		v1.DELETE("/components/:id/workloads/:workload_id", handlers.UnlinkWorkload)
+
 		// Workloads
 		v1.GET("/workloads", handlers.ListWorkloads)
+		v1.GET("/workloads/lookup", handlers.LookupWorkload)
 		v1.POST("/workloads", handlers.CreateWorkload)
+		v1.POST("/workloads/bulk", handlers.BulkUpsertWorkloads)
 		v1.GET("/workloads/:id", handlers.GetWorkload)
 		v1.PUT("/workloads/:id", handlers.UpdateWorkload)
 		v1.DELETE("/workloads/:id", handlers.DeleteWorkload)

@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "database": "/Users/jihaia/.aperture/aperture.db",
+            "name": "Aperture"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}

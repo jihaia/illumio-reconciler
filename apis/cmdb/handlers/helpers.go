@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/jihaia/aperture/apis/cmdb/db"
 )
 
@@ -50,14 +51,19 @@ func (qb *queryBuilder) whereClause() string {
 	return " WHERE " + strings.Join(qb.where, " AND ")
 }
 
-// idParam extracts and validates an integer :id path parameter.
-func idParam(c *gin.Context) (int64, bool) {
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-	if err != nil || id <= 0 {
+// idParam extracts the :id path parameter as a string (UUID).
+func idParam(c *gin.Context) (string, bool) {
+	id := c.Param("id")
+	if id == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
-		return 0, false
+		return "", false
 	}
 	return id, true
+}
+
+// newUUID generates a new UUID v4 string.
+func newUUID() string {
+	return uuid.New().String()
 }
 
 // scanRows scans all rows into a slice of maps.
@@ -140,15 +146,15 @@ func listHandler(table, orderBy string, filters func(c *gin.Context, qb *queryBu
 	}
 }
 
-// getHandler is a generic get-by-id handler factory.
-func getHandler(table string) gin.HandlerFunc {
+// getByPK is a generic get-by-primary-key handler factory.
+func getByPK(table, pkColumn string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, ok := idParam(c)
 		if !ok {
 			return
 		}
 
-		query := fmt.Sprintf("SELECT * FROM %s WHERE id = ?", table)
+		query := fmt.Sprintf("SELECT * FROM %s WHERE %s = ?", table, pkColumn)
 		row, err := scanRow(getDB(), c, query, id)
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
@@ -162,15 +168,15 @@ func getHandler(table string) gin.HandlerFunc {
 	}
 }
 
-// deleteHandler is a generic delete-by-id handler factory.
-func deleteHandler(table string) gin.HandlerFunc {
+// deleteByPK is a generic delete-by-primary-key handler factory.
+func deleteByPK(table, pkColumn string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, ok := idParam(c)
 		if !ok {
 			return
 		}
 
-		query := fmt.Sprintf("DELETE FROM %s WHERE id = ?", table)
+		query := fmt.Sprintf("DELETE FROM %s WHERE %s = ?", table, pkColumn)
 		result, err := getDB().ExecContext(c, query, id)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

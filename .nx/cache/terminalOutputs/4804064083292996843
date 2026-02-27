@@ -1,0 +1,30 @@
+> pnpm build
+
+[43m[30m WARN [39m[49m Unsupported engine: wanted: {"node":">=24.0.0"} (current: {"node":"v22.20.0","pnpm":"10.14.0"})
+
+> aperture-extension@1.0.0 build /Users/jihaia/Sandbox/customers/jeppesen-foreflight/illumio-reconciler/apps/extension
+> tsc && vite build
+
+[36mvite v5.4.21 [32mbuilding for production...[36m[39m
+[2K[1Gtransforming (1) [2m../../../../../../../../@crx/manifest[22m[2K[1Gtransforming (7) [2msrc/popup/main.tsx[22m[2K[1Gtransforming (23) [2m../../node_modules/.pnpm/react@18.3.1/node_modules/react/cjs/react.prod[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1Gtransforming (109) [2msrc/shared/storage/index.ts[22m[2K[1Gtransforming (276) [2m../../node_modules/.pnpm/d3-color@3.1.0/node_modules/d3-color/src/defi[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[32m✓[39m 294 modules transformed.
+[2K[1Grendering chunks (1)...[2K[1Grendering chunks (2)...[2K[1Grendering chunks (3)...[2K[1Grendering chunks (4)...[2K[1Grendering chunks (5)...[2K[1Grendering chunks (6)...[2K[1Grendering chunks (7)...[2K[1Grendering chunks (8)...[2K[1Grendering chunks (9)...[2K[1G[2K[1Gcomputing gzip size (0)...[2K[1Gcomputing gzip size (1)...[2K[1Gcomputing gzip size (2)...[2K[1Gcomputing gzip size (3)...[2K[1Gcomputing gzip size (4)...[2K[1Gcomputing gzip size (5)...[2K[1Gcomputing gzip size (6)...[2K[1Gcomputing gzip size (7)...[2K[1Gcomputing gzip size (8)...[2K[1Gcomputing gzip size (9)...[2K[1Gcomputing gzip size (10)...[2K[1Gcomputing gzip size (11)...[2K[1Gcomputing gzip size (12)...[2K[1Gcomputing gzip size (13)...[2K[1Gcomputing gzip size (14)...[2K[1Gcomputing gzip size (15)...[2K[1Gcomputing gzip size (16)...[2K[1G[2mdist/[22m[32mservice-worker-loader.js              [39m[1m[2m  0.05 kB[22m[1m[22m
+[2mdist/[22m[32micons/icon16.png                      [39m[1m[2m  0.50 kB[22m[1m[22m
+[2mdist/[22m[32msrc/sidepanel/index.html              [39m[1m[2m  0.51 kB[22m[1m[22m[2m │ gzip:  0.32 kB[22m
+[2mdist/[22m[32msrc/admin/index.html                  [39m[1m[2m  0.55 kB[22m[1m[22m[2m │ gzip:  0.34 kB[22m
+[2mdist/[22m[32msrc/popup/index.html                  [39m[1m[2m  0.60 kB[22m[1m[22m[2m │ gzip:  0.35 kB[22m
+[2mdist/[22m[32msrc/graph/index.html                  [39m[1m[2m  0.63 kB[22m[1m[22m[2m │ gzip:  0.36 kB[22m
+[2mdist/[22m[32micons/icon48.png                      [39m[1m[2m  1.33 kB[22m[1m[22m
+[2mdist/[22m[32mmanifest.json                         [39m[1m[2m  1.34 kB[22m[1m[22m[2m │ gzip:  0.54 kB[22m
+[2mdist/[22m[32m.vite/manifest.json                   [39m[1m[2m  1.91 kB[22m[1m[22m[2m │ gzip:  0.47 kB[22m
+[2mdist/[22m[32micons/icon128.png                     [39m[1m[2m  3.59 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[35mgraph-BZV40eAE.css             [39m[1m[2m 15.85 kB[22m[1m[22m[2m │ gzip:  2.66 kB[22m
+[2mdist/[22m[2massets/[22m[35mglobals-CuCdAIAM.css           [39m[1m[2m 29.37 kB[22m[1m[22m[2m │ gzip:  5.57 kB[22m
+[2mdist/[22m[2massets/[22m[36millumio-client-D2CveEVP.js     [39m[1m[2m 11.64 kB[22m[1m[22m[2m │ gzip:  3.54 kB[22m
+[2mdist/[22m[2massets/[22m[36mmain.ts-CJzorlYW.js            [39m[1m[2m 12.82 kB[22m[1m[22m[2m │ gzip:  4.35 kB[22m
+[2mdist/[22m[2massets/[22m[36mpopup-DpqZq6ra.js              [39m[1m[2m 18.25 kB[22m[1m[22m[2m │ gzip:  5.03 kB[22m
+[2mdist/[22m[2massets/[22m[36msidepanel-CoihoL36.js          [39m[1m[2m 18.37 kB[22m[1m[22m[2m │ gzip:  4.97 kB[22m
+[2mdist/[22m[2massets/[22m[36mservice-worker.ts-Dwe2AwU0.js  [39m[1m[2m 19.01 kB[22m[1m[22m[2m │ gzip:  5.60 kB[22m
+[2mdist/[22m[2massets/[22m[36madmin-BfGwoS39.js              [39m[1m[2m 40.41 kB[22m[1m[22m[2m │ gzip: 11.12 kB[22m
+[2mdist/[22m[2massets/[22m[36mglobals-C9qB4Se5.js            [39m[1m[2m172.26 kB[22m[1m[22m[2m │ gzip: 54.79 kB[22m
+[2mdist/[22m[2massets/[22m[36mgraph-Cy_srwhI.js              [39m[1m[2m224.27 kB[22m[1m[22m[2m │ gzip: 69.65 kB[22m
+[32m✓ built in 967ms[39m

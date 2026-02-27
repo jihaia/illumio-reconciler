@@ -21,6 +21,7 @@ export default defineConfig({
         popup: 'src/popup/index.html',
         sidepanel: 'src/sidepanel/index.html',
         graph: 'src/graph/index.html',
+        admin: 'src/admin/index.html',
       },
     },
   },
