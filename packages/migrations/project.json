@@ -1,0 +1,27 @@
+{
+  "name": "migrations",
+  "projectType": "library",
+  "sourceRoot": "packages/migrations",
+  "targets": {
+    "up": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "go run ./cmd",
+        "cwd": "packages/migrations",
+        "env": {
+          "GOENV_VERSION": "1.24.0"
+        }
+      }
+    },
+    "status": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "go run ./cmd status",
+        "cwd": "packages/migrations",
+        "env": {
+          "GOENV_VERSION": "1.24.0"
+        }
+      }
+    }
+  }
+}

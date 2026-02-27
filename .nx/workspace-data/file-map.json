@@ -1,0 +1,475 @@
+{
+  "version": "6.0",
+  "nxVersion": "22.5.3",
+  "pathMappings": {},
+  "nxJsonPlugins": [],
+  "fileMap": {
+    "nonProjectFiles": [
+      {
+        "file": ".gitignore",
+        "hash": "4219589121026285388"
+      },
+      {
+        "file": "pnpm-workspace.yaml",
+        "hash": "1134632198837000327"
+      },
+      {
+        "file": ".claude/settings.local.json",
+        "hash": "10030657174925809601"
+      },
+      {
+        "file": "pnpm-lock.yaml",
+        "hash": "2912788078041989673"
+      },
+      {
+        "file": "go.work",
+        "hash": "7762846419282181543"
+      },
+      {
+        "file": ".nvmrc",
+        "hash": "6929075154623388995"
+      },
+      {
+        "file": "package.json",
+        "hash": "9894928099395022859"
+      },
+      {
+        "file": "nx.json",
+        "hash": "10748337985413718958"
+      }
+    ],
+    "projectFileMap": {
+      "extension": [
+        {
+          "file": "apps/extension/.nvmrc",
+          "hash": "6929075154623388995"
+        },
+        {
+          "file": "apps/extension/docs/illumio-reconciler.png",
+          "hash": "6058729887044411591"
+        },
+        {
+          "file": "apps/extension/manifest.json",
+          "hash": "563992888808192314"
+        },
+        {
+          "file": "apps/extension/native-host/com.aperture.db.json",
+          "hash": "11804018083142339409"
+        },
+        {
+          "file": "apps/extension/native-host/db/migrations/001_initial_schema.sql",
+          "hash": "13088848883391202618"
+        },
+        {
+          "file": "apps/extension/native-host/db/migrations/002_seed_component_types.sql",
+          "hash": "18182843060530322170"
+        },
+        {
+          "file": "apps/extension/native-host/host.js",
+          "hash": "5315464065331528518"
+        },
+        {
+          "file": "apps/extension/native-host/install.sh",
+          "hash": "12701650998401451844"
+        },
+        {
+          "file": "apps/extension/native-host/package-lock.json",
+          "hash": "3069808045452136122"
+        },
+        {
+          "file": "apps/extension/native-host/package.json",
+          "hash": "6463962580602068599"
+        },
+        {
+          "file": "apps/extension/native-host/test-host.js",
+          "hash": "12446884795120771343"
+        },
+        {
+          "file": "apps/extension/package-lock.json",
+          "hash": "6238104168925272122"
+        },
+        {
+          "file": "apps/extension/package.json",
+          "hash": "15147450661308316736",
+          "deps": [
+            "npm:@crxjs/vite-plugin",
+            "npm:@types/chrome",
+            "npm:@types/react",
+            "npm:@types/react-dom",
+            "npm:@vitejs/plugin-react",
+            "npm:autoprefixer",
+            "npm:postcss",
+            "npm:tailwindcss",
+            "npm:typescript",
+            "npm:vite",
+            "npm:react",
+            "npm:react-dom",
+            "npm:@xyflow/react",
+            "npm:@tanstack/react-query",
+            "npm:zustand",
+            "npm:@dagrejs/dagre",
+            "npm:clsx",
+            "npm:tailwind-merge"
+          ]
+        },
+        {
+          "file": "apps/extension/postcss.config.js",
+          "hash": "1886002347757770194"
+        },
+        {
+          "file": "apps/extension/project.json",
+          "hash": "9001206144579594788"
+        },
+        {
+          "file": "apps/extension/public/icons/Frame 3.png",
+          "hash": "799462266599954516"
+        },
+        {
+          "file": "apps/extension/public/icons/icon128.png",
+          "hash": "12751221669520634370"
+        },
+        {
+          "file": "apps/extension/public/icons/icon16.png",
+          "hash": "799462266599954516"
+        },
+        {
+          "file": "apps/extension/public/icons/icon48.png",
+          "hash": "1420962392632498415"
+        },
+        {
+          "file": "apps/extension/scripts/catalog.js",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "apps/extension/scripts/debug-issues.js",
+          "hash": "13809475917140056710"
+        },
+        {
+          "file": "apps/extension/scripts/discovery-1.js",
+          "hash": "2868907477127786436"
+        },
+        {
+          "file": "apps/extension/scripts/discovery-2.js",
+          "hash": "16539470111595107156"
+        },
+        {
+          "file": "apps/extension/scripts/discovery-3.js",
+          "hash": "3073114405451854468"
+        },
+        {
+          "file": "apps/extension/scripts/find-servers-with-components.cjs",
+          "hash": "7789863772077906300"
+        },
+        {
+          "file": "apps/extension/scripts/generate-icons.js",
+          "hash": "11584317796379316138"
+        },
+        {
+          "file": "apps/extension/scripts/snow-client.js",
+          "hash": "881962742411379695"
+        },
+        {
+          "file": "apps/extension/scripts/snow-simple.js",
+          "hash": "9062600111282379538"
+        },
+        {
+          "file": "apps/extension/scripts/snow-test.js",
+          "hash": "963431328990662968"
+        },
+        {
+          "file": "apps/extension/scripts/test-full.js",
+          "hash": "5991891227851150758"
+        },
+        {
+          "file": "apps/extension/src/background/service-worker.ts",
+          "hash": "13078687810382358820"
+        },
+        {
+          "file": "apps/extension/src/content/main.ts",
+          "hash": "17642749808932734635"
+        },
+        {
+          "file": "apps/extension/src/env.d.ts",
+          "hash": "12946363841406869089"
+        },
+        {
+          "file": "apps/extension/src/graph/App.tsx",
+          "hash": "8814465757097434985"
+        },
+        {
+          "file": "apps/extension/src/graph/components/DetailPanel.tsx",
+          "hash": "4992320645877131053"
+        },
+        {
+          "file": "apps/extension/src/graph/components/FilterBar.tsx",
+          "hash": "15925974582253459044"
+        },
+        {
+          "file": "apps/extension/src/graph/components/GraphCanvas.tsx",
+          "hash": "14965874945696510128"
+        },
+        {
+          "file": "apps/extension/src/graph/components/Legend.tsx",
+          "hash": "13260823128317814877"
+        },
+        {
+          "file": "apps/extension/src/graph/components/nodes/ComponentNode.tsx",
+          "hash": "3544012683065769202"
+        },
+        {
+          "file": "apps/extension/src/graph/components/nodes/PortfolioNode.tsx",
+          "hash": "1029218850542208382"
+        },
+        {
+          "file": "apps/extension/src/graph/components/nodes/ServiceNode.tsx",
+          "hash": "8718674169028955953"
+        },
+        {
+          "file": "apps/extension/src/graph/components/nodes/SwimlaneNode.tsx",
+          "hash": "16997532570597120743"
+        },
+        {
+          "file": "apps/extension/src/graph/components/nodes/WorkloadNode.tsx",
+          "hash": "6794669129296069076"
+        },
+        {
+          "file": "apps/extension/src/graph/hooks/useGraphData.ts",
+          "hash": "14886561244769472508"
+        },
+        {
+          "file": "apps/extension/src/graph/index.html",
+          "hash": "9834272112831579315"
+        },
+        {
+          "file": "apps/extension/src/graph/main.tsx",
+          "hash": "15743324534529431991"
+        },
+        {
+          "file": "apps/extension/src/graph/types.ts",
+          "hash": "3586691283764820624"
+        },
+        {
+          "file": "apps/extension/src/graph/utils/colors.ts",
+          "hash": "11070758988627451917"
+        },
+        {
+          "file": "apps/extension/src/graph/utils/layout.ts",
+          "hash": "4612157071030144468"
+        },
+        {
+          "file": "apps/extension/src/popup/App.tsx",
+          "hash": "7905525043729894926"
+        },
+        {
+          "file": "apps/extension/src/popup/components/ConnectModal.tsx",
+          "hash": "12775159559996768428"
+        },
+        {
+          "file": "apps/extension/src/popup/components/ConnectionBar.tsx",
+          "hash": "6722594205152784477"
+        },
+        {
+          "file": "apps/extension/src/popup/components/QueryBuilder.tsx",
+          "hash": "148881998516933509"
+        },
+        {
+          "file": "apps/extension/src/popup/components/ResultsList.tsx",
+          "hash": "815514295715347240"
+        },
+        {
+          "file": "apps/extension/src/popup/components/Settings.tsx",
+          "hash": "16715059612213424009"
+        },
+        {
+          "file": "apps/extension/src/popup/index.html",
+          "hash": "1985402052965502536"
+        },
+        {
+          "file": "apps/extension/src/popup/main.tsx",
+          "hash": "4191308937743531147"
+        },
+        {
+          "file": "apps/extension/src/shared/api/illumio-client.ts",
+          "hash": "9643763470014557179"
+        },
+        {
+          "file": "apps/extension/src/shared/api/servicenow-client.ts",
+          "hash": "9697475984169312016"
+        },
+        {
+          "file": "apps/extension/src/shared/components/ErrorBoundary.tsx",
+          "hash": "1160446685087814416"
+        },
+        {
+          "file": "apps/extension/src/shared/db/client.ts",
+          "hash": "10434817537177402048"
+        },
+        {
+          "file": "apps/extension/src/shared/db/types.ts",
+          "hash": "173468326035716390"
+        },
+        {
+          "file": "apps/extension/src/shared/hooks/useAuth.ts",
+          "hash": "17637460256454442190"
+        },
+        {
+          "file": "apps/extension/src/shared/hooks/useIllumio.ts",
+          "hash": "977753592123920714"
+        },
+        {
+          "file": "apps/extension/src/shared/hooks/useServiceNow.ts",
+          "hash": "14909444458269181073"
+        },
+        {
+          "file": "apps/extension/src/shared/lib/utils.ts",
+          "hash": "15456290709904554663"
+        },
+        {
+          "file": "apps/extension/src/shared/storage/index.ts",
+          "hash": "5075907705815725667"
+        },
+        {
+          "file": "apps/extension/src/shared/types/index.ts",
+          "hash": "17141824064262234105"
+        },
+        {
+          "file": "apps/extension/src/sidepanel/App.tsx",
+          "hash": "17639063640882121852"
+        },
+        {
+          "file": "apps/extension/src/sidepanel/components/DashboardView.tsx",
+          "hash": "10062191204195386568"
+        },
+        {
+          "file": "apps/extension/src/sidepanel/components/Footer.tsx",
+          "hash": "1865254566030115036"
+        },
+        {
+          "file": "apps/extension/src/sidepanel/components/Header.tsx",
+          "hash": "14126367914596534973"
+        },
+        {
+          "file": "apps/extension/src/sidepanel/components/WorkloadView.tsx",
+          "hash": "10997331064995435320"
+        },
+        {
+          "file": "apps/extension/src/sidepanel/hooks/useCurrentWorkload.ts",
+          "hash": "854125929755914208"
+        },
+        {
+          "file": "apps/extension/src/sidepanel/index.html",
+          "hash": "8557059481410379446"
+        },
+        {
+          "file": "apps/extension/src/sidepanel/main.tsx",
+          "hash": "4001939367386953823"
+        },
+        {
+          "file": "apps/extension/src/styles/globals.css",
+          "hash": "8907138560628564322"
+        },
+        {
+          "file": "apps/extension/tailwind.config.js",
+          "hash": "8848729091469312113"
+        },
+        {
+          "file": "apps/extension/tsconfig.json",
+          "hash": "14171867023238525597"
+        },
+        {
+          "file": "apps/extension/tsconfig.node.json",
+          "hash": "3186773791380473964"
+        },
+        {
+          "file": "apps/extension/vite.config.ts",
+          "hash": "5456691118578764600"
+        }
+      ],
+      "api-cmdb": [
+        {
+          "file": "apis/cmdb/db/db.go",
+          "hash": "5116915042885541291"
+        },
+        {
+          "file": "apis/cmdb/go.mod",
+          "hash": "9555995813504383213"
+        },
+        {
+          "file": "apis/cmdb/handlers/app_groupings.go",
+          "hash": "1480462624567790691"
+        },
+        {
+          "file": "apis/cmdb/handlers/applications.go",
+          "hash": "7338188027018331743"
+        },
+        {
+          "file": "apis/cmdb/handlers/assets.go",
+          "hash": "4292708912719884724"
+        },
+        {
+          "file": "apis/cmdb/handlers/component_types.go",
+          "hash": "6609385461356750115"
+        },
+        {
+          "file": "apis/cmdb/handlers/components.go",
+          "hash": "9071882005011288385"
+        },
+        {
+          "file": "apis/cmdb/handlers/health.go",
+          "hash": "2897862571558030297"
+        },
+        {
+          "file": "apis/cmdb/handlers/helpers.go",
+          "hash": "4251803370319688755"
+        },
+        {
+          "file": "apis/cmdb/handlers/portfolios.go",
+          "hash": "16760761028492543886"
+        },
+        {
+          "file": "apis/cmdb/handlers/workloads.go",
+          "hash": "8838982528902922041"
+        },
+        {
+          "file": "apis/cmdb/main.go",
+          "hash": "3274008765274108085"
+        },
+        {
+          "file": "apis/cmdb/project.json",
+          "hash": "11950692148820966116"
+        },
+        {
+          "file": "apis/cmdb/routes/router.go",
+          "hash": "3153815134610458841"
+        }
+      ],
+      "migrations": [
+        {
+          "file": "packages/migrations/cmd/main.go",
+          "hash": "1640480854390996774"
+        },
+        {
+          "file": "packages/migrations/go.mod",
+          "hash": "13881894968639038483"
+        },
+        {
+          "file": "packages/migrations/migrate.go",
+          "hash": "16491855454341241345"
+        },
+        {
+          "file": "packages/migrations/project.json",
+          "hash": "17786622448433873691"
+        },
+        {
+          "file": "packages/migrations/sql/001_initial_schema.sql",
+          "hash": "13088848883391202618"
+        },
+        {
+          "file": "packages/migrations/sql/002_seed_component_types.sql",
+          "hash": "18182843060530322170"
+        }
+      ]
+    }
+  },
+  "externalNodesHash": "9745103165824314789"
+}

@@ -1,0 +1,28 @@
+{
+  "name": "extension",
+  "projectType": "application",
+  "sourceRoot": "apps/extension/src",
+  "targets": {
+    "install": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm install",
+        "cwd": "apps/extension"
+      }
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm dev",
+        "cwd": "apps/extension"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm build",
+        "cwd": "apps/extension"
+      }
+    }
+  }
+}

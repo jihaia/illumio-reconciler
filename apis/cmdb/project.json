@@ -1,0 +1,37 @@
+{
+  "name": "api-cmdb",
+  "projectType": "application",
+  "sourceRoot": "apis/cmdb",
+  "targets": {
+    "install": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "go mod tidy",
+        "cwd": "apis/cmdb",
+        "env": {
+          "GOENV_VERSION": "1.24.0"
+        }
+      }
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "go run main.go",
+        "cwd": "apis/cmdb",
+        "env": {
+          "GOENV_VERSION": "1.24.0"
+        }
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o bootstrap .",
+        "cwd": "apis/cmdb",
+        "env": {
+          "GOENV_VERSION": "1.24.0"
+        }
+      }
+    }
+  }
+}

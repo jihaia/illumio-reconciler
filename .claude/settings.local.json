@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node scripts/discover-cmdb-2.mjs)",
+      "Bash(npm run build)",
+      "Bash(export GOENV_VERSION=1.24.0)",
+      "Bash(go build ./...)",
+      "Bash(npx nx show projects)",
+      "Bash(npx nx install extension)"
+    ]
+  }
+}

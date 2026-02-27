@@ -1,3 +1,17 @@
 node_modules/
 .DS_Store
 dist/
+.vite/
+*.local
+.env
+
+# Native host generated files
+apps/extension/native-host/run-host.sh
+
+# Go
+apis/cmdb/bootstrap
+go.sum
+
+# IDE
+.idea/
+*.swp
